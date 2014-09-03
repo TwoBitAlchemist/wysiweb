@@ -1,7 +1,10 @@
-{% load admin_static %}{% load firstof from future %}<!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+{% load url from future %}
+{% load static %}
+{% load theming_tags %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
-<title>{% block title %}{% endblock %}</title>
+<title>WYSIWEB | A Web Publishing Suite for the 21st Century</title>
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,9 +13,7 @@
 <link rel="stylesheet" type="text/css" href="{{CDN}}/css/bootstrap-theme.min.css">
 <script type="text/javascript" src="{{CDN}}/js/bootstrap.min.js"></script>
 {% endwith %}
-<link rel="stylesheet" type="text/css" href="{% block stylesheet %}{% static "admin/css/base.css" %}{% endblock %}" />
-{% block extrastyle %}{% endblock %}
-<!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}{% static "admin/css/ie.css" %}{% endblock %}" /><![endif]-->
+<link rel="stylesheet" type="text/css" href="{% block stylesheet %}{% get_admin_media "css/base.css" %}{% endblock %}" />
 {% with CDN='https://oss.maxcdn.com' %}
 <script type="text/javascript" src="{{CDN}}/html5shiv/3.7.2/html5shiv.min.js">
 </script>
@@ -22,10 +23,22 @@
 {% with CDN='https://ajax.googleapis.com/ajax/libs/jquery/1.11.1' %}
 <script type="text/javascript" src="{{CDN}}/jquery.min.js"></script>
 {% endwith %}
-{% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}{% static "admin/css/rtl.css" %}{% endblock %}" />{% endif %}
-<script type="text/javascript">window.__admin_media_prefix__ = "{% filter escapejs %}{% static "admin/" %}{% endfilter %}";</script>
+{% block extrastyle %}{% endblock %}
+<!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}{% get_admin_media "css/ie.css" %}{% endblock %}" /><![endif]-->
+{% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}{% get_admin_media "css/rtl.css" %}{% endblock %}" />{% endif %}
+{% render_theming_css %}
+<script type="text/javascript">window.__admin_media_prefix__ = "{% filter escapejs %}{% get_admin_media %}{% endfilter %}";</script>
 {% block extrahead %}{% endblock %}
 {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE" />{% endblock %}
+<style type="text/css">
+#header #branding h1 {
+    background-image: url('{% static "admin/logo.png" %}');
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: 100%;
+    width: 150px; height: 32px;
+}
+</style>
 </head>
 {% load i18n %}
 
@@ -43,16 +56,26 @@
         {% if user.is_active and user.is_staff %}
         <div id="user-tools">
             {% trans 'Welcome,' %}
-            <strong>{% firstof user.get_short_name user.get_username %}</strong>.
+            <strong>{% filter force_escape %}{% firstof user.get_short_name user.first_name user.get_username user.username %}{% endfilter %}</strong>.
             {% block userlinks %}
                 {% url 'django-admindocs-docroot' as docsroot %}
                 {% if docsroot %}
                     <a href="{{ docsroot }}">{% trans 'Documentation' %}</a> /
                 {% endif %}
-                {% if user.has_usable_password %}
-                <a href="{% url 'admin:password_change' %}">{% trans 'Change password' %}</a> /
+                {% url 'admin:password_change' as password_change_url %}
+                {% if password_change_url %}
+                    <a href="{{ password_change_url }}">
+                {% else %}
+                    <a href="{{ root_path }}password_change/">
                 {% endif %}
-                <a href="{% url 'admin:logout' %}">{% trans 'Log out' %}</a>
+                {% trans 'Change password' %}</a> /
+                {% url 'admin:logout' as logout_url %}
+                {% if logout_url %}
+                    <a href="{{ logout_url }}">
+                {% else %}
+                    <a href="{{ root_path }}logout/">
+                {% endif %}
+                {% trans 'Log out' %}</a>
             {% endblock %}
         </div>
         {% endif %}
@@ -67,13 +90,11 @@
     {% endblock %}
     {% endif %}
 
-    {% block messages %}
         {% if messages %}
         <ul class="messagelist">{% for message in messages %}
-          <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|capfirst }}</li>
-        {% endfor %}</ul>
+          <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+	{% endfor %}</ul>
         {% endif %}
-    {% endblock messages %}
 
     <!-- Content -->
     <div id="content" class="{% block coltype %}colM{% endblock %}">

@@ -34,6 +34,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 # Application definition
 
 INSTALLED_APPS = (
+    'sites',
     'admin_tools',
     'admin_tools.theming',
     'admin_tools.menu',
