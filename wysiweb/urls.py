@@ -8,6 +8,6 @@ urlpatterns = patterns('',
     # url(r'^$', 'wysiweb.views.home', name='home'),
     # url(r'^blog/', include('blog.urls')),
 
-    url(r'^grappelli/', include('grappelli.urls')),
+    url(r'^admin_tools/', include('admin_tools.urls')),
     url(r'^admin/', include(admin.site.urls)),
 )
