@@ -24,7 +24,7 @@ class SelfRendering(object):
         raise NotImplementedError
 
     def render(self):
-        """Render this model's template (as a string)  using its context"""
+        """Render this model's template (as a string) using its context"""
         context = self.supply_context()
         return self.get_template().render(template.Context(context))
 
@@ -50,3 +50,6 @@ class Document(models.Model, SelfRendering):
 
     def supply_context(self):
         return {'title': self.name}
+
+    def __unicode__(self):
+        return self.name
