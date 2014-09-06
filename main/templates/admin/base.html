@@ -8,21 +8,7 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-{% with CDN='https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0' %}
-<link rel="stylesheet" type="text/css" href="{{CDN}}/css/bootstrap.min.css">
-<link rel="stylesheet" type="text/css" href="{{CDN}}/css/bootstrap-theme.min.css">
-<script type="text/javascript" src="{{CDN}}/js/bootstrap.min.js"></script>
-{% endwith %}
-<link rel="stylesheet" type="text/css" href="{% block stylesheet %}{% get_admin_media "css/base.css" %}{% endblock %}" />
-{% with CDN='https://oss.maxcdn.com' %}
-<script type="text/javascript" src="{{CDN}}/html5shiv/3.7.2/html5shiv.min.js">
-</script>
-<script type="text/javascript" src="{{CDN}}/respond/1.4.2/respond.min.js">
-</script>
-{% endwith %}
-{% with CDN='https://ajax.googleapis.com/ajax/libs/jquery/1.11.1' %}
-<script type="text/javascript" src="{{CDN}}/jquery.min.js"></script>
-{% endwith %}
+{% include 'ui/core_libs.head.html' %}
 {% block extrastyle %}{% endblock %}
 <!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}{% get_admin_media "css/ie.css" %}{% endblock %}" /><![endif]-->
 {% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}{% get_admin_media "css/rtl.css" %}{% endblock %}" />{% endif %}
@@ -36,6 +22,7 @@
     background-position: center center;
     background-repeat: no-repeat;
     background-size: 100%;
+    margin-top: 5px;
     width: 150px; height: 32px;
 }
 </style>

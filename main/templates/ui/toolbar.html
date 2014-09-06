@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WYSIWEB | Document Creator Toolbar</title>
+    <meta charset="utf-8">
+    {% include 'ui/core_libs.head.html' %}
+    <script>$(document).ready(function(){$('#categories').tabs();});</script>
+</head>
+<body>
+<div id="categories">
+  <ol>
+    {% for type in components.keys %}
+    <li><a href="#tab{{ forloop.counter }}">{{ type.name }}</a></li>
+    {% endfor %}
+  </ol>
+  {% for tab_content in components.values %}
+  <div id="tab{{ forloop.counter }}">
+    {{ tab_content }}
+  </div>
+  {% endfor %}
+</div><!-- #categories -->
+</body>
+</html>

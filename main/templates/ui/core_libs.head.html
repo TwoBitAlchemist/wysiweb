@@ -1,0 +1,20 @@
+{% load theming_tags %}
+{% with CDN='https://ajax.googleapis.com/ajax/libs/jquery/1.11.1' %}
+<script type="text/javascript" src="{{CDN}}/jquery.min.js"></script>
+{% endwith %}
+{% with CDN='https://code.jquery.com/ui/1.11.1' %}
+<link rel="stylesheet" type="text/css" href="{{CDN}}/themes/dark-hive/jquery-ui.css">
+<script type="text/javascript" src="{{CDN}}/jquery-ui.min.js"></script>
+{% endwith %}
+{% with CDN='https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0' %}
+<link rel="stylesheet" type="text/css" href="{{CDN}}/css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="{{CDN}}/css/bootstrap-theme.min.css">
+<script type="text/javascript" src="{{CDN}}/js/bootstrap.min.js"></script>
+{% endwith %}
+<link rel="stylesheet" type="text/css" href="{% block stylesheet %}{% get_admin_media "css/base.css" %}{% endblock %}" />
+{% with CDN='https://oss.maxcdn.com' %}
+<script type="text/javascript" src="{{CDN}}/html5shiv/3.7.2/html5shiv.min.js">
+</script>
+<script type="text/javascript" src="{{CDN}}/respond/1.4.2/respond.min.js">
+</script>
+{% endwith %}

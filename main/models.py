@@ -73,6 +73,15 @@ class Document(models.Model, SelfRendering):
     name = models.CharField(max_length=255)
     elements = models.ManyToManyField(BaseElement, related_name='documents')
 
+    def has_elements(self):
+        """
+        Utility function for templates to check whether or not rendering the
+        Document will result in visible HTML.
+
+        Returns True if Document has attached elements, False otherwise.
+        """
+        return bool(len(self.elements.all()))
+
     def supply_context(self):
         return {
             'title': self.name,
