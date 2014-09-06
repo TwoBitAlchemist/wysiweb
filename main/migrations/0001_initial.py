@@ -2,8 +2,8 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-import mptt.fields
 import main.models
+import mptt.fields
 
 
 class Migration(migrations.Migration):
@@ -13,20 +13,29 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='BaseElement',
+            name='BaseNode',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('index', models.PositiveSmallIntegerField(unique=True)),
+                ('index', models.PositiveSmallIntegerField()),
                 ('lft', models.PositiveIntegerField(editable=False, db_index=True)),
                 ('rght', models.PositiveIntegerField(editable=False, db_index=True)),
                 ('tree_id', models.PositiveIntegerField(editable=False, db_index=True)),
                 ('level', models.PositiveIntegerField(editable=False, db_index=True)),
-                ('parent', mptt.fields.TreeForeignKey(related_name=b'children', blank=True, to='main.BaseElement', null=True)),
             ],
             options={
                 'abstract': False,
             },
             bases=(models.Model, main.models.SelfRendering),
+        ),
+        migrations.CreateModel(
+            name='BaseElement',
+            fields=[
+                ('basenode_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='main.BaseNode')),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=('main.basenode',),
         ),
         migrations.CreateModel(
             name='Document',
@@ -38,5 +47,22 @@ class Migration(migrations.Migration):
             options={
             },
             bases=(models.Model, main.models.SelfRendering),
+        ),
+        migrations.CreateModel(
+            name='MediaObject',
+            fields=[
+                ('basenode_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='main.BaseNode')),
+                ('parent_element', models.ForeignKey(related_name=b'media', to='main.BaseElement')),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=('main.basenode',),
+        ),
+        migrations.AddField(
+            model_name='basenode',
+            name='parent',
+            field=mptt.fields.TreeForeignKey(related_name=b'children', blank=True, to='main.BaseNode', null=True),
+            preserve_default=True,
         ),
     ]
