@@ -8,7 +8,35 @@
 
 {% block extrastyle %}{{ block.super }}
 <link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}" />
-<style>iframe{border:0;width:96%;position:fixed;bottom:0;}</style>
+<style>
+    #brush_toolbar {
+        position: fixed;
+        bottom: 4px;
+        width: 97%;
+        height: 140px;
+        border: 0;
+    }
+    #tool_options {
+        padding: 0.5em;
+    }
+    #document_preview {
+        min-height: 450px;
+    }
+    #document_preview iframe {
+        min-height: 450px;
+        width: 100%;
+    }
+    .submit-row {
+        margin-bottom: 150px;
+    }
+</style>
+<script>
+    $(document).on('click', '#add_to_doc', 
+        function(e){
+            e.preventDefault();
+        }
+    );
+</script>
 {% endblock %}
 
 {% block coltype %}colM{% endblock %}
@@ -56,14 +84,26 @@
 {% for fieldset in adminform %}
   {% include "admin/includes/fieldset.html" %}
 {% endfor %}
-{% if original.has_elements %}
+<div class="row" id="preview">
+<div class="col-sm-9">
 <h2>Document Preview</h2>
-<div>
-<fieldset class="module">
-    {{ original.render }}
-</fieldset>
-</div>
+<fieldset class="module" id="document_preview">
+{% if original.pk %}
+<iframe src="{% url 'preview' original.pk %}">
+You must enable iframes in your browser to see the document preview.
+</iframe>
+{% else %}
+Preview not available.
 {% endif %}
+</fieldset>
+</div><!-- .col-sm-9 -->
+<div class="col-sm-3">
+<h2>Tool Options</h2>
+<fieldset class="module" id="tool_options">
+No tool selected.
+</fieldset>
+</div><!-- .col-sm-3 -->
+</div><!-- .row -->
 {% endblock %}
 
 {% block after_field_sets %}{% endblock %}
@@ -78,7 +118,7 @@
 
 {% block submit_buttons_bottom %}{% submit_row %}{% endblock %}
 
-<iframe src="{% url 'toolbar' %}">
+<iframe id="brush_toolbar" src="{% url 'toolbar' %}">
 You cannot use the components toolbar with iframes disabled.
 </iframe>
 

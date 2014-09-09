@@ -1,4 +1,3 @@
-{% load mptt_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,19 +5,40 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    {% with CDN='https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0' %}
+{% with CDN='https://ajax.googleapis.com/ajax/libs/jquery/1.11.1' %}
+    <script src="{{CDN}}/jquery.min.js"></script>
+{% endwith %}
+{% with CDN='https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0' %}
     <link rel="stylesheet" href="{{CDN}}/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{CDN}}/css/bootstrap-theme.min.css">
     <script src="{{CDN}}/js/bootstrap.min.js"></script>
-    {% endwith %}
-    {% with CDN='https://oss.maxcdn.com' %}
+{% endwith %}
+{% with CDN='https://oss.maxcdn.com' %}
     <script src="{{CDN}}/html5shiv/3.7.2/html5shiv.min.js"></script>
     <script src="{{CDN}}/respond/1.4.2/respond.min.js"></script>
-    {% endwith %}
-    {% with CDN='https://ajax.googleapis.com/ajax/libs/jquery/1.11.1' %}
-    <script src="{{CDN}}/jquery.min.js"></script>
-    {% endwith %}
+{% endwith %}
+{% load mptt_tags %}
+{% for element in document.elements.all %}
+  {% recursetree element.media.all %}
+    {{ node.render }}
+  {% if not node.is_leaf_node %}
+    {{ children }}
+  {% endif %}
+  {% endrecursetree %}
+{% endfor %}
 </head>
 <body>
+{% if not document.elements.all %}
+&ensp;<b>This page intentionally left blank. :)</b>
+{% else %}
+<div class="container">
+{% recursetree document.elements.all %}
+    {{ node.render }}
+    {% if not node.is_leaf_node %}
+        {{ children }}
+    {% endif %}
+{% endrecursetree %}
+</div>
+{% endif %}
 </body>
 </html>

@@ -4,15 +4,31 @@ MediaObjects and types.
 """
 from django.db import models
 
-from main.models import BaseElement, MediaObject
+from main.models import BaseElement, ComponentLibrary
 
 
-class ComponentType(models.Model):
+toolbar = ComponentLibrary()
+
+
+@toolbar.register(group='Presentation')
+class ImageSlideshow(BaseElement):
     """
-    Model defining the tabs in the DocumentCreator toolbar that organize
-    the various Components into categories.
-    """
-    name = models.CharField(max_length=20)
+    A jQuery-based image slideshow based on the JSSOR library.
 
-    def __unicode__(self):
-        return self.name
+    Easily add images to a responsive, touch-friendly slideshow with support
+    for hundreds of transitions and effects.
+
+    http://jssor.com/
+    """
+    pass
+
+
+@toolbar.register(group='Text')
+class Jumbotron(BaseElement):
+    """
+    This is a 'hero unit', a simple jumbotron-style component for calling
+    extra attention to featured content or information.
+
+    Provided by Twitter Bootstrap.
+    """
+    pass

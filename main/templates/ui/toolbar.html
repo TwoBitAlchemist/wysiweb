@@ -4,19 +4,85 @@
     <title>WYSIWEB | Document Creator Toolbar</title>
     <meta charset="utf-8">
     {% include 'ui/core_libs.head.html' %}
-    <script>$(document).ready(function(){$('#categories').tabs();});</script>
+    <script>
+    $(document).ready(function(){
+        var tabs = $('#categories').tabs();
+        tabs.find('.ui-tabs-nav').sortable({
+            axis: 'x',
+            stop: function(){ tabs.tabs('refresh'); }
+        });
+        var add_to_doc_button = $('<button id="add_to_doc"></button>');
+        add_to_doc_button
+            .addClass('btn btn-block btn-success')
+            .text('Add to Document');
+        $('.component').click(function(){
+            $('.component.active').removeClass('active');
+            var clicked = $(this);
+            clicked.addClass('transparent');
+            window.setTimeout(function(){
+                clicked.removeClass('transparent').addClass('active');
+            }, 80);
+            $.ajax({
+                url: "{% url 'toolopts' %}",
+                data: {'model': clicked.text().replace(' ', '')},
+                success: function(data){
+                    if (data) {
+                        var parent = window.parent.document;
+                        var toolopts = parent.getElementById('tool_options');
+                        $(toolopts)
+                            .empty()
+                            .append(data.form)
+                            .append(add_to_doc_button);
+                    }
+                }
+            });
+        });
+    });
+    </script>
+    <style>
+    .component {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        border: 1px solid #dedeff !important;
+        border-radius: 8px !important;
+        margin: 4px 8px !important;
+        padding: 1em 0;
+        text-align: center;
+        /* http://stackoverflow.com/a/4407335 */
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+    .component:hover,
+    .component.active {
+        background-color: rgba(255, 255, 255, 0.2) !important;
+    }
+    .component:hover {
+        box-shadow: 0 0 5px white;
+        cursor: pointer;
+    }
+    .component.transparent,
+    .component.transparent:hover {
+        background-color: transparent !important;
+    }
+    </style>
 </head>
-<body>
+<body style="overflow-x:hidden">
+{% load dictaccess %}
 <div id="categories">
-  <ol>
-    {% for type in components.keys %}
-    <li><a href="#tab{{ forloop.counter }}">{{ type.name }}</a></li>
+  <ul>
+    {% for group in components %}
+    <li><a href="#tab{{ forloop.counter }}">{{ group }}</a></li>
     {% endfor %}
-  </ol>
-  {% for tab_content in components.values %}
-  <div id="tab{{ forloop.counter }}">
-    {{ tab_content }}
-  </div>
+  </ul>
+  {% for group in components %}
+  <div class="row" id="tab{{ forloop.counter }}">
+  {% for component in components|dictaccess:group %}
+  <p class="component col-xs-3 col-sm-2"
+      title="{{ component.description }}">{{ component.name }}</p>
+  {% endfor %}
+  </div><!-- .row -->
   {% endfor %}
 </div><!-- #categories -->
 </body>

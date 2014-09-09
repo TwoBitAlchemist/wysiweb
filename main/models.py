@@ -1,6 +1,8 @@
 """
 High-level containers and document types.
 """
+import re
+
 from django import template
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
@@ -11,7 +13,7 @@ class SelfRendering(object):
     A mixin connecting a self-rendering model to its template.
     """
     def __init__(self, *args, **kwargs):
-        self.type = 'html'
+        self.filetype = 'html'
 
     def get_template(self):
         """
@@ -20,7 +22,7 @@ class SelfRendering(object):
         Returns a django.template.Template object.
         """
         class_name = self.__class__.__name__.lower()
-        model_template = 'elements/%s.%s' % (class_name, self.type)
+        model_template = 'elements/%s.%s' % (class_name, self.filetype)
         return template.loader.get_template(model_template)
 
     def supply_context(self):
@@ -34,7 +36,8 @@ class SelfRendering(object):
         Render this model's template (as a string) using its context.
         """
         context = self.supply_context()
-        return self.get_template().render(template.Context(context))
+        rendered = self.get_template().render(template.Context(context))
+        return '\n'.join(filter(bool, rendered.strip().splitlines()))
 
 
 class BaseNode(MPTTModel, SelfRendering):
@@ -48,7 +51,7 @@ class BaseNode(MPTTModel, SelfRendering):
 
     parent = TreeForeignKey('self', null=True, blank=True,
                             related_name='children')
-    index = models.PositiveSmallIntegerField()
+    index = models.PositiveSmallIntegerField(default=0)
 
 
 class BaseElement(BaseNode):
@@ -90,3 +93,42 @@ class Document(models.Model, SelfRendering):
 
     def __unicode__(self):
         return self.name
+
+
+class ComponentLibrary(object):
+    """
+    Similar to django.template.Library for storing components registered to the
+    DocumentCreator toolbar.
+    """
+    def __init__(self, *args, **kwargs):
+        self.components = {}
+
+    def register(self, class_=None, name=None, desc=None, group=None):
+        """
+        Register a class to appear on the DocumentCreator toolbar.
+        """
+        if class_ is None:
+            def decorator(class_):
+                return self.register(class_, name, desc, group)
+            return decorator
+
+        if group is None:
+            group = 'Miscellaneous'
+
+        if name is None:
+            pattern = r'([A-Z]){1}'     # exactly one uppercase letter
+            name = re.sub(re.compile(pattern), r' \1', class_.__name__).strip()
+
+        if desc is None:
+            desc = class_.__doc__.strip()
+            desc = '\n'.join((line.strip() for line in desc.splitlines()))
+            if len(desc) > 255:
+                desc = desc[:252] + '...'
+
+        component = {'name': name, 'description': desc}
+        try:
+            self.components[group].append(component)
+        except KeyError:
+            self.components[group] = [component]
+
+        return class_

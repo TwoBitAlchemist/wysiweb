@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
             name='BaseNode',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('index', models.PositiveSmallIntegerField()),
+                ('index', models.PositiveSmallIntegerField(default=0)),
                 ('lft', models.PositiveIntegerField(editable=False, db_index=True)),
                 ('rght', models.PositiveIntegerField(editable=False, db_index=True)),
                 ('tree_id', models.PositiveIntegerField(editable=False, db_index=True)),
