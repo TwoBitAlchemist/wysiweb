@@ -6,8 +6,15 @@ from django.shortcuts import render
 from django import template
 
 from main.models import Document
-from components import models as component_model
+import components.models
 from components.models import toolbar
+
+
+def add_to_document(request):
+    """
+    Handle AJAX requests to add an element to the current document.
+    """
+    pass
 
 
 def default_toolbar(request):
@@ -15,7 +22,11 @@ def default_toolbar(request):
     Populate the DocumentCreator toolbar with premade components organized
     into jQuery UI tabs based on their ComponentType.
     """
-    context = {'components': toolbar.components}
+    try:
+        document = request.GET['document']
+    except KeyError:
+        raise Http404
+    context = {'components': toolbar.components, 'document': document}
     return render(request, 'ui/toolbar.html', context)
 
 
@@ -42,13 +53,15 @@ def generate_tool_options(request):
     Imports a component on the fly and creates a ModelForm for it.
     """
     try:
-        model = getattr(component_model, request.GET['model'])
+        model = getattr(components.models, request.GET['model'])
+        document = request.GET['document']
     except (AttributeError, KeyError):
-        raise Http404
+        return HttpResponse('No tool selected.')
 
-    modelform = modelform_factory(model, exclude=('parent', 'index'))
-    if request.is_ajax():
-        return HttpResponse(json.dumps({'form': str(modelform())}),
-                            content_type='application/json')
-    else:
-        raise Http404
+    modelform = modelform_factory(model, exclude=('parent', 'index', 'text'))
+    context = {
+        'form': str(modelform()),
+        'model': model.__name__,
+        'document': document,
+    }
+    return render(request, 'ui/toolopts.html', context)

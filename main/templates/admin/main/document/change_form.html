@@ -16,8 +16,9 @@
         height: 140px;
         border: 0;
     }
-    #tool_options {
-        padding: 0.5em;
+    #toolopts_iframe {
+        width: 100%;
+        height: 100%;
     }
     #document_preview {
         min-height: 450px;
@@ -30,13 +31,6 @@
         margin-bottom: 150px;
     }
 </style>
-<script>
-    $(document).on('click', '#add_to_doc', 
-        function(e){
-            e.preventDefault();
-        }
-    );
-</script>
 {% endblock %}
 
 {% block coltype %}colM{% endblock %}
@@ -100,7 +94,9 @@ Preview not available.
 <div class="col-sm-3">
 <h2>Tool Options</h2>
 <fieldset class="module" id="tool_options">
-No tool selected.
+<iframe src="{% url 'toolopts' %}" id="toolopts_iframe">
+You must enable iframes in your browser to see the tool options widget.
+</iframe>
 </fieldset>
 </div><!-- .col-sm-3 -->
 </div><!-- .row -->
@@ -118,9 +114,15 @@ No tool selected.
 
 {% block submit_buttons_bottom %}{% submit_row %}{% endblock %}
 
-<iframe id="brush_toolbar" src="{% url 'toolbar' %}">
+{% if original.pk %}
+<iframe id="brush_toolbar" src="{% url 'toolbar' %}?document={{original.pk}}">
 You cannot use the components toolbar with iframes disabled.
 </iframe>
+{% else %}
+<div class="jumbotron"><p class="text-center text-danger">
+You must name the document and save it before it can be edited.
+</p></div>
+{% endif %}
 
 {% if adminform and add %}
     <script type="text/javascript">

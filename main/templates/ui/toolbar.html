@@ -22,20 +22,15 @@
             window.setTimeout(function(){
                 clicked.removeClass('transparent').addClass('active');
             }, 80);
-            $.ajax({
-                url: "{% url 'toolopts' %}",
-                data: {'model': clicked.text().replace(' ', '')},
-                success: function(data){
-                    if (data) {
-                        var parent = window.parent.document;
-                        var toolopts = parent.getElementById('tool_options');
-                        $(toolopts)
-                            .empty()
-                            .append(data.form)
-                            .append(add_to_doc_button);
-                    }
-                }
-            });
+            var model_name = clicked.text().replace(' ', '');
+            var model_input = $('<input type="hidden">');
+            model_input.val(model_name);
+            var query_string = "?model=" + model_name;
+            query_string += "&document=" + {{ document }};
+            var toolopts_url = "{% url 'toolopts' %}" + query_string;
+            var parent = window.parent.document;
+            var iframe = parent.getElementById('toolopts_iframe');
+            iframe.contentWindow.location = toolopts_url;
         });
     });
     </script>

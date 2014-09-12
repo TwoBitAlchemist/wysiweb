@@ -59,7 +59,7 @@ class BaseElement(BaseNode):
     Base class for SelfRendering elements with HTML-based template fragments
     and optional CSS/JS MediaObject components.
     """
-    pass
+    text = models.TextField(null=True, blank=True)
 
 
 class MediaObject(BaseNode):
@@ -86,10 +86,7 @@ class Document(models.Model, SelfRendering):
         return bool(len(self.elements.all()))
 
     def supply_context(self):
-        return {
-            'title': self.name,
-            'elements': self.elements.all(),
-        }
+        return {'document': self}
 
     def __unicode__(self):
         return self.name
