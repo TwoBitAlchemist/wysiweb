@@ -18,7 +18,7 @@
     <script src="{{CDN}}/respond/1.4.2/respond.min.js"></script>
 {% endwith %}
 {% load mptt_tags %}
-{% for element in document.elements.all %}
+{% for element in elements.all %}
   {% recursetree element.media.all %}
     {{ node.render }}
   {% if not node.is_leaf_node %}
@@ -26,18 +26,21 @@
   {% endif %}
   {% endrecursetree %}
 {% endfor %}
+{% block preview_extra %}{% endblock %}
 </head>
 <body>
-{% if not document.elements.all %}
+{% if not elements.all %}
 &ensp;<b>This page intentionally left blank. :)</b>
 {% else %}
 <div class="container">
-{% recursetree document.elements.all %}
+{% autoescape off %}
+{% recursetree elements.all %}
     {{ node.render }}
     {% if not node.is_leaf_node %}
         {{ children }}
     {% endif %}
 {% endrecursetree %}
+{% endautoescape %}
 </div>
 {% endif %}
 </body>

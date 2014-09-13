@@ -1,8 +1,6 @@
-import json
-
 from django.forms.models import modelform_factory
 from django.http import Http404, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django import template
 
 from main.models import Document
@@ -10,11 +8,29 @@ import components.models
 from components.models import toolbar
 
 
+def get_modelform(model):
+    """
+    Helper method to call modelform_factory with consistent options.
+    """
+    return modelform_factory(model, exclude=('parent', 'index', 'text'))
+
+
 def add_to_document(request):
     """
     Handle AJAX requests to add an element to the current document.
     """
-    pass
+    if not request.method == 'POST':
+        raise Http404
+    try:
+        document = Document.objects.get(pk=request.POST['document'])
+        model = getattr(components.models, request.POST['model'])
+    except (AttributeError, Document.DoesNotExist, KeyError):
+        raise Http404
+
+    modelform = get_modelform(model)(request.POST)
+    instance = modelform.save()
+    document.elements.add(instance)
+    return redirect('toolopts')
 
 
 def default_toolbar(request):
@@ -36,14 +52,7 @@ def document_preview(request, pk):
     """
     try:
         document = Document.objects.get(pk=pk)
-        template_text = ''.join((
-            '{% autoescape off %}',
-            '{{ document.render }}',
-            '{% endautoescape %}',
-        ))
-        preview_template = template.Template(template_text)
-        preview_context = template.Context({'document': document})
-        return HttpResponse(preview_template.render(preview_context))
+        return render(request, 'ui/preview.html', document.supply_context())
     except Document.DoesNotExist:
         raise Http404
 
@@ -58,9 +67,9 @@ def generate_tool_options(request):
     except (AttributeError, KeyError):
         return HttpResponse('No tool selected.')
 
-    modelform = modelform_factory(model, exclude=('parent', 'index', 'text'))
+    form = str(get_modelform(model)())
     context = {
-        'form': str(modelform()),
+        'form': form,
         'model': model.__name__,
         'document': document,
     }

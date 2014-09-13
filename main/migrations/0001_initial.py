@@ -31,6 +31,7 @@ class Migration(migrations.Migration):
             name='BaseElement',
             fields=[
                 ('basenode_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='main.BaseNode')),
+                ('text', models.TextField(default=b'', blank=True)),
             ],
             options={
                 'abstract': False,

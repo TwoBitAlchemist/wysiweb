@@ -5,6 +5,8 @@ import re
 
 from django import template
 from django.db import models
+# http://stackoverflow.com/a/929982/2588818
+from model_utils.managers import InheritanceManager
 from mptt.models import MPTTModel, TreeForeignKey
 
 
@@ -59,7 +61,11 @@ class BaseElement(BaseNode):
     Base class for SelfRendering elements with HTML-based template fragments
     and optional CSS/JS MediaObject components.
     """
-    text = models.TextField(null=True, blank=True)
+    objects = InheritanceManager()
+    text = models.TextField(blank=True, default='')
+
+    def supply_context(self):
+        return {'element': self}
 
 
 class MediaObject(BaseNode):
@@ -86,7 +92,10 @@ class Document(models.Model, SelfRendering):
         return bool(len(self.elements.all()))
 
     def supply_context(self):
-        return {'document': self}
+        return {
+            'document': self,
+            'elements': self.elements.select_subclasses(),
+        }
 
     def __unicode__(self):
         return self.name

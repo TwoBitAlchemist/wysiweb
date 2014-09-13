@@ -4,6 +4,20 @@
     <title>WYSIWEB | Tool Options</title>
     <meta charset="utf-8">
     {% include 'ui/core_libs.head.html' %}
+    <script>
+        $(document).ready(function(){
+            $('form').submit(function(){
+                var parent = window.parent.document;
+                var toolbar = parent.getElementById('brush_toolbar');
+                var preview = parent.getElementById('preview_iframe');
+                $(toolbar).contents().
+                    find('.component.active').removeClass('active');
+                window.parent.window.setTimeout(function(){
+                    preview.contentWindow.location.reload();
+                }, 500);
+            });
+        });
+    </script>
 </head>
 <body>
 <form method="post" action="{% url 'add_to_document' %}">

@@ -7,7 +7,7 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('main', '0002_baseelement_text'),
+        ('main', '0001_initial'),
     ]
 
     operations = [
