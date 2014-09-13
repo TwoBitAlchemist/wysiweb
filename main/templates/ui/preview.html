@@ -1,3 +1,10 @@
 {% extends 'elements/document.html' %}
 {% block preview_extra %}
+<script>
+$(document).ready(function(){
+    $('.container *').on('click', function(){
+        $(this).prop('contenteditable', true);
+    });
+});
+</script>
 {% endblock %}
