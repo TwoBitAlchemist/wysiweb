@@ -57,11 +57,14 @@ def document_preview(request, pk):
             return render(request, 'ui/preview.html',
                           document.supply_context())
         else:
-            t = template.Template(
-                    '{% autoescape off %}'
-                    '{{ document.render }}'
-                    '{% endautoescape %}'
-                )
+            template_string = ''.join((
+                '{% autoescape off %}',
+                '{{ document.render }}',
+                '{% endautoescape %}',
+            ))
+            if request.GET.get('print', False):
+                template_string += '<script>window.print();</script>'
+            t = template.Template(template_string)
             context = template.Context({'document': document})
             return HttpResponse(t.render(context))
     except Document.DoesNotExist:
@@ -85,3 +88,23 @@ def generate_tool_options(request):
         'document': document,
     }
     return render(request, 'ui/toolopts.html', context)
+
+
+def update_elements(request):
+    """
+    AJAX handler to update elements on a document.
+    """
+    if not request.is_ajax() or not request.method == 'POST':
+        raise Http404
+    try:
+        for key, value in request.POST.items():
+            try:
+                name, pk = key.split('-')
+                model = getattr(components.models, name).objects.get(pk=pk)
+                model.text = value
+                model.save()
+            except (AttributeError, ValueError, model.DoesNotExist):
+                continue
+        return HttpResponse('OK!')
+    except (Document.DoesNotExist, KeyError):
+        raise Http404

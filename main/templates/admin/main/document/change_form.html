@@ -3,45 +3,19 @@
 
 {% block extrahead %}{{ block.super }}
 <script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
-<script>
-$(document).ready(function(){
-    window.setInterval(function(){
-        var preview = $('#preview_iframe');
-        if (preview.hasClass('outdated')) {
-            preview[0].contentWindow.location.reload();
-            preview.removeClass('outdated');
-        }
-    }, 500);
-});
+<script type="text/javascript">
+    var preview_url = "{% url 'preview' original.pk %}";
+    var update_url = "{% url 'update' %}";
 </script>
+<script type="text/javascript" src="{% static 'admin/js/document_creator.js' %}">
+    </script>
 {{ media }}
 {% endblock %}
 
 {% block extrastyle %}{{ block.super }}
 <link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}" />
-<style>
-    #brush_toolbar {
-        position: fixed;
-        bottom: 4px;
-        width: 97%;
-        height: 140px;
-        border: 0;
-    }
-    #toolopts_iframe {
-        width: 100%;
-        height: 100%;
-    }
-    #document_preview {
-        min-height: 450px;
-    }
-    #preview_iframe {
-        min-height: 450px;
-        width: 100%;
-    }
-    .submit-row {
-        margin-bottom: 150px;
-    }
-</style>
+<link rel="stylesheet" type="text/css"
+    href="{% static "admin/css/document_creator.css" %}" />
 {% endblock %}
 
 {% block coltype %}colM{% endblock %}

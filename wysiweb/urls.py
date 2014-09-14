@@ -13,4 +13,5 @@ urlpatterns = patterns('',
     url(r'^addelem', main_views.add_to_document, name='add_to_document'),
     url(r'^toolbar', main_views.default_toolbar, name='toolbar'),
     url(r'^toolopts', main_views.generate_tool_options, name='toolopts'),
+    url(r'^update', main_views.update_elements, name='update'),
 )

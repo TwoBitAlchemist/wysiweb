@@ -3,7 +3,13 @@
 <script>
 $(document).ready(function(){
     $('.container *').on('click', function(){
-        $(this).prop('contenteditable', true);
+        $(this).prop('contenteditable', true).focus();
+    }).on('blur', function(){
+        var blurred = $(this);
+        var elemid = blurred.data('object');
+        $('#' + elemid + '-text')
+            .addClass('updated')
+            .val(blurred.text().trim());
     });
 });
 </script>
