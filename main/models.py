@@ -33,13 +33,15 @@ class SelfRendering(object):
         """
         raise NotImplementedError
 
-    def render(self):
+    def render(self, indent=0):
         """
         Render this model's template (as a string) using its context.
         """
         context = self.supply_context()
         rendered = self.get_template().render(template.Context(context))
-        return '\n'.join(filter(bool, rendered.strip().splitlines()))
+        rendered = (line.rstrip() for line in rendered.strip().splitlines())
+        lspacing = ' ' * indent * 4
+        return ('\n' + lspacing).join(filter(bool, rendered))
 
 
 class BaseNode(MPTTModel, SelfRendering):

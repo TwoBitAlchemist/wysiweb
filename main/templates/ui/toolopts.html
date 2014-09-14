@@ -12,9 +12,7 @@
                 var preview = parent.getElementById('preview_iframe');
                 $(toolbar).contents().
                     find('.component.active').removeClass('active');
-                window.parent.window.setTimeout(function(){
-                    preview.contentWindow.location.reload();
-                }, 500);
+                $(preview).addClass('outdated');
             });
         });
     </script>

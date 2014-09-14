@@ -3,6 +3,17 @@
 
 {% block extrahead %}{{ block.super }}
 <script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
+<script>
+$(document).ready(function(){
+    window.setInterval(function(){
+        var preview = $('#preview_iframe');
+        if (preview.hasClass('outdated')) {
+            preview[0].contentWindow.location.reload();
+            preview.removeClass('outdated');
+        }
+    }, 500);
+});
+</script>
 {{ media }}
 {% endblock %}
 

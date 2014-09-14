@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>{{ document.title }}</title>
+    <title>{{ document.name }}</title>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -18,9 +18,10 @@
     <script src="{{CDN}}/respond/1.4.2/respond.min.js"></script>
 {% endwith %}
 {% load mptt_tags %}
+{% load node_render %}
 {% for element in elements.all %}
   {% recursetree element.media.all %}
-    {{ node.render }}
+    {{ node|render }}
   {% if not node.is_leaf_node %}
     {{ children }}
   {% endif %}
@@ -35,7 +36,7 @@
 <div class="container">
 {% autoescape off %}
 {% recursetree elements.all %}
-    {{ node.render }}
+    {{ node|render }}
     {% if not node.is_leaf_node %}
         {{ children }}
     {% endif %}

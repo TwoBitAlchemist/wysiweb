@@ -52,7 +52,18 @@ def document_preview(request, pk):
     """
     try:
         document = Document.objects.get(pk=pk)
-        return render(request, 'ui/preview.html', document.supply_context())
+        editable = request.GET.get('editable', False)
+        if editable:
+            return render(request, 'ui/preview.html',
+                          document.supply_context())
+        else:
+            t = template.Template(
+                    '{% autoescape off %}'
+                    '{{ document.render }}'
+                    '{% endautoescape %}'
+                )
+            context = template.Context({'document': document})
+            return HttpResponse(t.render(context))
     except Document.DoesNotExist:
         raise Http404
 
