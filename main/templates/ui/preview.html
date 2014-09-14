@@ -1,5 +1,5 @@
 {% extends 'elements/document.html' %}
-{% block preview_extra %}
+{% block preview_extra_headers %}
 <script>
 $(document).ready(function(){
     $('.container *').on('click', function(){
@@ -7,4 +7,15 @@ $(document).ready(function(){
     });
 });
 </script>
+{% endblock %}
+{% block preview_hidden %}
+{% load mptt_tags %}
+{% load wysiweb_filters %}
+{% recursetree elements.all %}
+<input type="hidden" value="{{ node.text }}"
+    id="{{ node|elemid }}-text">
+{% if not node.is_leaf_node %}
+{{ children }}
+{% endif %}
+{% endrecursetree %}
 {% endblock %}

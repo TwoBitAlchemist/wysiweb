@@ -206,7 +206,7 @@ $(document).ready(function(){
 <div class="clearfix"></div>
 <fieldset class="module" id="document_preview">
 {% if original.pk %}
-<iframe id="preview_iframe" src="{% url 'preview' original.pk %}">
+<iframe id="preview_iframe" src="{% url 'preview' original.pk %}?editable=1">
 You must enable iframes in your browser to see the document preview.
 </iframe>
 {% else %}

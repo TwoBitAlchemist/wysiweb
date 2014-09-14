@@ -18,7 +18,7 @@
     <script src="{{CDN}}/respond/1.4.2/respond.min.js"></script>
 {% endwith %}
 {% load mptt_tags %}
-{% load node_render %}
+{% load wysiweb_filters %}
 {% for element in elements.all %}
   {% recursetree element.media.all %}
     {{ node|render }}
@@ -27,7 +27,7 @@
   {% endif %}
   {% endrecursetree %}
 {% endfor %}
-{% block preview_extra %}{% endblock %}
+{% block preview_extra_headers %}{% endblock %}
 </head>
 <body>
 {% if not elements.all %}
@@ -44,5 +44,6 @@
 {% endautoescape %}
 </div>
 {% endif %}
+{% block preview_hidden %}{% endblock %}
 </body>
 </html>
