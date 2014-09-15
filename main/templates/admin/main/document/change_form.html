@@ -7,6 +7,8 @@
     var preview_url = "{% url 'preview' original.pk %}";
     var update_url = "{% url 'update' %}";
 </script>
+<script type="text/javascript" src="{% static 'admin/js/snap_selection.js' %}">
+    </script>
 <script type="text/javascript" src="{% static 'admin/js/document_creator.js' %}">
     </script>
 {{ media }}

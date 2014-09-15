@@ -1,5 +1,7 @@
 {% extends 'elements/document.html' %}
+{% load staticfiles %}
 {% block preview_extra_headers %}
+<script src="{% static 'admin/js/snap_selection.js' %}"></script>
 <script>
 $(document).ready(function(){
     $('.container *').on('click', function(){
@@ -10,7 +12,7 @@ $(document).ready(function(){
         $('#' + elemid + '-text')
             .addClass('updated')
             .val(blurred.text().trim());
-    });
+    }).on('mouseup', snapSelectionToWord);
 });
 </script>
 {% endblock %}

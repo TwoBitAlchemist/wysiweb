@@ -21,6 +21,7 @@ $(document).ready(function(){
         return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
     }
 
+    // From Django docs: send along {% csrf_token %} with AJAX requests
     $.ajaxSetup({
         beforeSend: function(xhr, settings) {
             if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
@@ -30,16 +31,7 @@ $(document).ready(function(){
         }
     });
 
-    window.setInterval(function(){
-        var preview = $('#preview_iframe');
-        if (preview.hasClass('outdated')) {
-            preview[0].contentWindow.location.reload();
-            preview.removeClass('outdated');
-        }
-    }, 500);
-
-    var iframe = $('#preview_iframe');
-    $('button[title="Save"]').click(function(){
+    function save_document() {
         var text_dict = {};
         var updated = iframe.contents().find('input.updated');
         if (updated.length) {
@@ -59,8 +51,22 @@ $(document).ready(function(){
                 }
             });
         }
-        $(this).removeClass('active');
-    });
+    }
+
+    // Polling method to reload document preview iframe if changed
+    var iframe = $('#preview_iframe');
+    window.setInterval(function(){
+        if (iframe.hasClass('outdated')) {
+            save_document();
+            iframe[0].contentWindow.location.reload();
+            iframe.removeClass('outdated');
+        }
+    }, 1500);
+
+/*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
+ *~*~*~*~*~*~*~*~           Bottom Button Bar       ~*~*~*~*~*~*~*~*~*~*~*~*~*
+ *~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*/
+    $('button[title="Save"]').click(save_document);
 
     $('button[title="Desktop Preview"]').click(function(){
         window.open(preview_url);
@@ -72,5 +78,34 @@ $(document).ready(function(){
 
     $('button[title="Print"]').click(function(){
         window.open(preview_url + '?print=1');
+    });
+
+/*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
+ *~*~*~*~*~*~*~*~            Top Button Bar         ~*~*~*~*~*~*~*~*~*~*~*~*~*
+ *~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*/
+    function Selection(){
+        // q.v. snap_selection.js
+        var parent = getSelectionParentElement(iframe[0]);
+        var parentObj = $(parent).closest('*[data-object]').data('object');
+        return {
+            "text": getSelectionText(iframe[0]),
+            "controller": iframe.contents().find('#' + parentObj + '-text')
+        };
+    }
+
+    $('button[title="Bold"]').click(function(){
+        var s = Selection();
+        s.controller
+            .addClass('updated')
+            .val(s.controller.val().replace(s.text, '**' + s.text + '**'));
+        iframe.addClass('outdated');
+    });
+
+    $('button[title="Italics"]').click(function(){
+        var s = Selection();
+        s.controller
+            .addClass('updated')
+            .val(s.controller.val().replace(s.text, '_' + s.text + '_'));
+        iframe.addClass('outdated');
     });
 });
