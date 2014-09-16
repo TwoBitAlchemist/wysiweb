@@ -4,7 +4,9 @@
 {% block extrahead %}{{ block.super }}
 <script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
 <script type="text/javascript">
+{% if original.pk %}
     var preview_url = "{% url 'preview' original.pk %}";
+{% endif %}
     var update_url = "{% url 'update' %}";
 </script>
 <script type="text/javascript" src="{% static 'admin/js/snap_selection.js' %}">
