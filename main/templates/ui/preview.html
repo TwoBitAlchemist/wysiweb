@@ -1,18 +1,28 @@
 {% extends 'elements/document.html' %}
 {% load staticfiles %}
 {% block preview_extra_headers %}
-<script src="{% static 'admin/js/snap_selection.js' %}"></script>
+<script src="{% static 'admin/js/_djangoAjaxInit.js' %}"></script>
+<script src="{% static 'admin/js/rangy/lib/rangy-core.js' %}"></script>
+<script src="{% static 'admin/js/rangy/lib/rangy-classapplier.js' %}"></script>
+<script src="{% static 'admin/js/rangy/lib/rangy-textrange.js' %}"></script>
 <script>
+var timerID;
 $(document).ready(function(){
-    $('.container *').on('click', function(){
-        $(this).prop('contenteditable', true).focus();
-    }).on('blur', function(){
-        var blurred = $(this);
-        var elemid = blurred.data('object');
-        $('#' + elemid + '-text')
-            .addClass('updated')
-            .val(blurred.text().trim());
-    }).on('mouseup', snapSelectionToWord);
+    rangy.init();
+    var rangy_opts = {normalize: true, applyToEditableOnly: true};
+    var wrapper = rangy.createCssClassApplier('selected', rangy_opts);
+    $('.container').prop('contenteditable', true).on('mouseup', function(){
+        if (timerID) window.clearTimeout(timerID);
+        timerID = window.setTimeout(function(){
+            var sel = rangy.getSelection();
+            if (sel.toString().length > 1) {
+                sel.expand('word');
+                wrapper.applyToSelection();
+            }
+        }, 120);
+    }).on('mousedown', function(){
+        wrapper.undoToSelection();
+    });
 });
 </script>
 {% endblock %}

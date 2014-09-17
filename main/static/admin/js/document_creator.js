@@ -1,37 +1,24 @@
 $(document).ready(function(){
-    /* https://docs.djangoproject.com/en/dev/ref/contrib/csrf/#ajax */
-    function getCookie(name) {
-        var cookieValue = null;
-        if (document.cookie && document.cookie != '') {
-            var cookies = document.cookie.split(';');
-            for (var i = 0; i < cookies.length; i++) {
-                var cookie = jQuery.trim(cookies[i]);
-                // Does this cookie string begin with the name we want?
-                if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
+    var iframe = $('#preview_iframe');
+
+    function save_document(mark_outdated) {
+        iframe.contents().find('.updated[data-object]').each(function(){
+            var updated = $(this);
+            var elemid = updated.data('object');
+            var edited_text = updated.html().trim();
+            updated.removeClass('updated');
+            $.ajax({
+                type: 'POST',
+                url: markup_url,
+                data: {'text': edited_text},
+                success: function(data){
+                    iframe.contents().find('#' + elemid + '-text')
+                        .addClass('updated')
+                        .val(data.markdown.trim());
+                    if (mark_outdated) iframe.addClass('outdated');
                 }
-            }
-        }
-        return cookieValue;
-    }
-
-    function csrfSafeMethod(method) {
-        // these HTTP methods do not require CSRF protection
-        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-    }
-
-    // From Django docs: send along {% csrf_token %} with AJAX requests
-    $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
-            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                var csrftoken = getCookie('csrftoken');
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            }
-        }
-    });
-
-    function save_document() {
+            });
+        });
         var text_dict = {};
         var updated = iframe.contents().find('input.updated');
         if (updated.length) {
@@ -47,21 +34,20 @@ $(document).ready(function(){
                     iframe.contents().find('input.updated').each(function(){
                         $(this).removeClass('updated');
                     });
-                    iframe.addClass('outdated');
+                    if (mark_outdated) iframe.addClass('outdated');
                 }
             });
         }
     }
 
     // Polling method to reload document preview iframe if changed
-    var iframe = $('#preview_iframe');
     window.setInterval(function(){
         if (iframe.hasClass('outdated')) {
-            save_document();
-            iframe[0].contentWindow.location.reload();
             iframe.removeClass('outdated');
+            save_document(false);
+            iframe[0].contentWindow.location.reload();
         }
-    }, 1500);
+    }, 1000);
 
 /*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
  *~*~*~*~*~*~*~*~           Bottom Button Bar       ~*~*~*~*~*~*~*~*~*~*~*~*~*
@@ -83,29 +69,27 @@ $(document).ready(function(){
 /*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
  *~*~*~*~*~*~*~*~            Top Button Bar         ~*~*~*~*~*~*~*~*~*~*~*~*~*
  *~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*/
-    function Selection(){
-        // q.v. snap_selection.js
-        var parent = getSelectionParentElement(iframe[0]);
-        var parentObj = $(parent).closest('*[data-object]').data('object');
-        return {
-            "text": getSelectionText(iframe[0]),
-            "controller": iframe.contents().find('#' + parentObj + '-text')
-        };
-    }
-
     $('button[title="Bold"]').click(function(){
-        var s = Selection();
-        s.controller
-            .addClass('updated')
-            .val(s.controller.val().replace(s.text, '**' + s.text + '**'));
-        iframe.addClass('outdated');
+        var selected = iframe.contents().find('.selected');
+        selected.closest('*[data-object]').addClass('updated');
+        var parent = selected.parent();
+        var parentNode = parent[0].nodeName;
+        if (parentNode === 'STRONG' || parentNode === 'B') {
+            parent.replaceWith(parent.html());
+        } else {
+            selected.replaceWith('<strong>'+selected.html()+'</strong>');
+        }
     });
 
     $('button[title="Italics"]').click(function(){
-        var s = Selection();
-        s.controller
-            .addClass('updated')
-            .val(s.controller.val().replace(s.text, '_' + s.text + '_'));
-        iframe.addClass('outdated');
+        var selected = iframe.contents().find('.selected');
+        selected.closest('*[data-object]').addClass('updated');
+        var parent = selected.parent();
+        var parentNode = parent[0].nodeName;
+        if (parentNode === 'EM' || parentNode === 'I') {
+            parent.replaceWith(parent.html());
+        } else {
+            selected.replaceWith('<em>'+selected.html()+'</em>');
+        }
     });
 });

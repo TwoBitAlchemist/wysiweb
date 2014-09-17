@@ -10,6 +10,7 @@ django-mptt==0.6.1
 django-toolbelt==0.0.1
 ecdsa==0.11
 gunicorn==19.1.1
+html2text==2014.9.8
 logilab-common==0.62.1
 paramiko==1.14.1
 pep8==1.5.7
