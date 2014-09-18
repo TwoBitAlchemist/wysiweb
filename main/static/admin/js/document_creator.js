@@ -1,13 +1,17 @@
 $(document).ready(function(){
     var iframe = $('#preview_iframe');
 
-    function save_document(mark_outdated) {
+    function save_document(no_refresh) {
+        console.log('Checking for updates...');
+        var document_updated = false;
         iframe.contents().find('.updated[data-object]').each(function(){
             var updated = $(this);
             var elemid = updated.data('object');
+            console.log('Updating ' + elemid + '...');
             var edited_text = updated.html().trim();
             updated.removeClass('updated');
             $.ajax({
+                async: false,
                 type: 'POST',
                 url: markup_url,
                 data: {'text': edited_text},
@@ -15,7 +19,8 @@ $(document).ready(function(){
                     iframe.contents().find('#' + elemid + '-text')
                         .addClass('updated')
                         .val(data.markdown.trim());
-                    if (mark_outdated) iframe.addClass('outdated');
+                    document_updated = true;
+                    console.log(elemid + ' updated!');
                 }
             });
         });
@@ -26,7 +31,9 @@ $(document).ready(function(){
                 var elemid = $(this).attr('id').replace('-text', '');
                 text_dict[elemid] = this.value;
             });
+            console.log('Saving elements...');
             $.ajax({
+                async: false,
                 url: update_url,
                 type: 'POST',
                 data: text_dict,
@@ -34,9 +41,14 @@ $(document).ready(function(){
                     iframe.contents().find('input.updated').each(function(){
                         $(this).removeClass('updated');
                     });
-                    if (mark_outdated) iframe.addClass('outdated');
+                    document_updated = true;
                 }
             });
+        }
+
+        if (document_updated && !no_refresh) {
+            console.log('Refreshing...');
+            iframe.addClass('outdated');
         }
     }
 
@@ -44,7 +56,7 @@ $(document).ready(function(){
     window.setInterval(function(){
         if (iframe.hasClass('outdated')) {
             iframe.removeClass('outdated');
-            save_document(false);
+            save_document(true);
             iframe[0].contentWindow.location.reload();
         }
     }, 1000);
@@ -52,7 +64,9 @@ $(document).ready(function(){
 /*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
  *~*~*~*~*~*~*~*~           Bottom Button Bar       ~*~*~*~*~*~*~*~*~*~*~*~*~*
  *~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*/
-    $('button[title="Save"]').click(save_document);
+    $('button[title="Save"]').click(function(){
+        save_document();
+    });
 
     $('button[title="Desktop Preview"]').click(function(){
         window.open(preview_url);
@@ -75,7 +89,7 @@ $(document).ready(function(){
         var parent = selected.parent();
         var parentNode = parent[0].nodeName;
         if (parentNode === 'STRONG' || parentNode === 'B') {
-            parent.replaceWith(parent.html());
+            parent.replaceWith(parent.siblings().html());
         } else {
             selected.replaceWith('<strong>'+selected.html()+'</strong>');
         }
@@ -87,7 +101,7 @@ $(document).ready(function(){
         var parent = selected.parent();
         var parentNode = parent[0].nodeName;
         if (parentNode === 'EM' || parentNode === 'I') {
-            parent.replaceWith(parent.html());
+            parent.replaceWith(parent.siblings().html());
         } else {
             selected.replaceWith('<em>'+selected.html()+'</em>');
         }

@@ -2,27 +2,56 @@
 {% load staticfiles %}
 {% block preview_extra_headers %}
 <script src="{% static 'admin/js/_djangoAjaxInit.js' %}"></script>
+<script src="{% static 'admin/js/esrever/src/esrever.js' %}"></script>
 <script src="{% static 'admin/js/rangy/lib/rangy-core.js' %}"></script>
 <script src="{% static 'admin/js/rangy/lib/rangy-classapplier.js' %}"></script>
 <script src="{% static 'admin/js/rangy/lib/rangy-textrange.js' %}"></script>
 <script>
-var timerID;
+var rangy, timerID, wrapper;
 $(document).ready(function(){
     rangy.init();
     var rangy_opts = {normalize: true, applyToEditableOnly: true};
-    var wrapper = rangy.createCssClassApplier('selected', rangy_opts);
-    $('.container').prop('contenteditable', true).on('mouseup', function(){
-        if (timerID) window.clearTimeout(timerID);
-        timerID = window.setTimeout(function(){
-            var sel = rangy.getSelection();
-            if (sel.toString().length > 1) {
-                sel.expand('word');
+    wrapper = rangy.createCssClassApplier('selected', rangy_opts);
+    var main = $('.container');
+    window.setInterval(function(){
+        main.find('*[data-object]').each(function(){
+            $(this).prop('contenteditable', true);
+        });
+    }, 1000);
+}).on('input', '*[contenteditable]', function(){
+    var component = $(this);
+    if (!component.hasClass('updated')) {
+        component.addClass('updated');
+    }
+}).on('mouseup', '*[contenteditable]', function(){
+    if (timerID) window.clearTimeout(timerID);
+    timerID = window.setTimeout(function(){
+        var sel = rangy.getSelection();
+        if (sel.toString().length > 1) {
+            wrapper.applyToSelection();
+            var selected = $('.selected');
+            var selected_text = esrever.reverse(selected.text());
+            var component = selected.closest('*[data-object]');
+            var component_text = esrever.reverse(component.text().trim());
+            if (selected_text != component_text) {
+                if (component_text.indexOf(selected_text)) {
+                    wrapper.undoToSelection();
+                    sel.expand('word', {
+                        trim: true
+                    });
+                } else {
+                    var range = sel.getRangeAt(0);
+                    range.move('word', -1);
+                    range.setEndAfter(selected.parent()[0]);
+                    wrapper.undoToSelection();
+                    sel.setSingleRange(range);
+                }
                 wrapper.applyToSelection();
             }
-        }, 120);
-    }).on('mousedown', function(){
-        wrapper.undoToSelection();
-    });
+        }
+    }, 120);
+}).on('mousedown', '*[contenteditable]', function(){
+    wrapper.undoToSelection();
 });
 </script>
 {% endblock %}
