@@ -1,13 +1,12 @@
-import json
-
+"""
+Views and helper functions for handling DocumentCreator's various requests.
+"""
 from django.contrib.admin.views.decorators import staff_member_required
 from django.forms.models import modelform_factory
-from django.http import Http404, HttpResponse, HttpResponseServerError
-from django.http import JsonResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, render
 from django import template
 from django.views.decorators.cache import never_cache
-from html2text import html2text
 
 from main.models import Document
 import components.models
@@ -21,6 +20,7 @@ def get_modelform(model):
     return modelform_factory(model, exclude=('parent', 'index', 'text'))
 
 
+# pylint: disable=E1101
 @staff_member_required
 def add_to_document(request):
     """
@@ -56,11 +56,12 @@ def default_toolbar(request):
 
 @never_cache
 @staff_member_required
-def document_preview(request, pk):
+def document_preview(request, pk):  # pylint: disable=C0103
     """
     View for rendering a Document's template inside an iframe in the admin.
     """
     try:
+        # pylint: disable=E1101
         document = Document.objects.get(pk=pk)
         editable = request.GET.get('editable', False)
         if editable:
@@ -74,6 +75,7 @@ def document_preview(request, pk):
             ))
             if request.GET.get('print', False):
                 template_string += '<script>window.print();</script>'
+            # pylint: disable=C0103
             t = template.Template(template_string)
             context = template.Context({'document': document})
             response = HttpResponse(t.render(context))
@@ -104,20 +106,6 @@ def generate_tool_options(request):
 
 
 @staff_member_required
-def markup(request):
-    """
-    Handle AJAX requests to convert HTML to Markdown.
-    """
-    if not request.is_ajax() and not request.method=='POST':
-        raise Http404
-    try:
-        text_with_html = request.POST['text']
-        return JsonResponse({'markdown': html2text(text_with_html)})
-    except KeyError:
-        return HttpResponseServerError('No text provided to convert!')
-
-
-@staff_member_required
 def update_elements(request):
     """
     AJAX handler to update elements on a document.
@@ -127,7 +115,7 @@ def update_elements(request):
     try:
         for key, value in request.POST.items():
             try:
-                name, pk = key.split('-')
+                name, pk = key.split('-')   # pylint: disable=C0103
                 model = getattr(components.models, name).objects.get(pk=pk)
                 model.text = value
                 model.save()

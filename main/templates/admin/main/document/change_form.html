@@ -2,9 +2,10 @@
 {% load i18n admin_urls admin_static admin_modify %}
 
 {% block extrahead %}{{ block.super }}
+<style>.flash{box-shadow: 0 0 18px lime;}</style>
 <script src="{% url 'admin:jsi18n' %}"></script>
 <script>
-    var markup_url = "{% url 'markup' %}";
+    var original_pk = "{{ original.pk }}";
 {% if original.pk %}
     var preview_url = "{% url 'preview' original.pk %}";
 {% endif %}
@@ -220,7 +221,7 @@ You must enable iframes in your browser to see the tool options widget.
 You cannot use the components toolbar with iframes disabled.
 </iframe>
 {% else %}
-<div class="jumbotron"><p class="text-center text-danger">
+<div id="brush_toolbar" class="jumbotron"><p class="text-center text-danger">
 You must name the document and save it before it can be edited.
 </p></div>
 {% endif %}

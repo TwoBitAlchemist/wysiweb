@@ -18,6 +18,22 @@ $(document).ready(function(){
             $(this).prop('contenteditable', true);
         });
     }, 1000);
+
+    $('span.highlight_element')
+        .css({
+            'color': 'dodgerblue',
+            'cursor': 'pointer',
+            'text-decoration': 'underline'
+        })
+        .click(function(){
+            var flash = $(window.parent.document).find('#'+$(this).data('id'));
+            var interval = window.setInterval(function(){
+                flash.toggleClass('flash');
+            }, 100);
+            window.setTimeout(function(){
+                window.clearInterval(interval);
+            }, 1100);
+        });
 }).on('input', '*[contenteditable]', function(){
     var component = $(this);
     if (!component.hasClass('updated')) {

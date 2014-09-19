@@ -2,14 +2,14 @@
 Models defining elements in the DocumentCreator toolbar, and their associated
 MediaObjects and types.
 """
-from django.db import models
-
 from main.models import BaseElement, ComponentLibrary
 
 
+# pylint: disable=C0103
 toolbar = ComponentLibrary()
 
 
+# pylint: disable=R0904
 @toolbar.register(group='Presentation')
 class ImageSlideshow(BaseElement):
     """
@@ -23,6 +23,7 @@ class ImageSlideshow(BaseElement):
     pass
 
 
+# pylint: disable=R0904
 @toolbar.register(group='Text')
 class Jumbotron(BaseElement):
     """

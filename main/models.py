@@ -14,6 +14,7 @@ class SelfRendering(object):
     """
     A mixin connecting a self-rendering model to its template.
     """
+    # pylint: disable=W0613
     def __init__(self, *args, **kwargs):
         self.filetype = 'html'
 
@@ -41,15 +42,18 @@ class SelfRendering(object):
         rendered = self.get_template().render(template.Context(context))
         rendered = (line.rstrip() for line in rendered.strip().splitlines())
         lspacing = ' ' * indent * 4
+        # pylint: disable=W0141
         return ('\n' + lspacing).join(filter(bool, rendered))
 
 
+# pylint: disable=W0223,R0904
 class BaseNode(MPTTModel, SelfRendering):
     """
     The base class for nodes in various tree structures.
 
     Provides MPTT-inherited features and basic funtionality.
     """
+    # pylint: disable=C0111,C1001,W0232,R0903
     class MPTTMeta:
         order_insertion_by = ('index',)
 
@@ -58,6 +62,7 @@ class BaseNode(MPTTModel, SelfRendering):
     index = models.PositiveSmallIntegerField(default=0)
 
 
+# pylint: disable=R0904
 class BaseElement(BaseNode):
     """
     Base class for SelfRendering elements with HTML-based template fragments
@@ -68,6 +73,10 @@ class BaseElement(BaseNode):
 
     def supply_context(self):
         return {'element': self}
+
+    def save(self, *args, **kwargs):
+        self.text = self.text.strip()
+        return super(BaseElement, self).save(*args, **kwargs)
 
 
 class MediaObject(BaseNode):
@@ -84,6 +93,7 @@ class Document(models.Model, SelfRendering):
     name = models.CharField(max_length=255)
     elements = models.ManyToManyField(BaseElement, related_name='documents')
 
+    # pylint: disable=E1101
     def has_elements(self):
         """
         Utility function for templates to check whether or not rendering the
@@ -93,6 +103,7 @@ class Document(models.Model, SelfRendering):
         """
         return bool(len(self.elements.all()))
 
+    # pylint: disable=E1101
     def supply_context(self):
         return {
             'document': self,
@@ -103,11 +114,13 @@ class Document(models.Model, SelfRendering):
         return self.name
 
 
+# pylint: disable=R0903
 class ComponentLibrary(object):
     """
     Similar to django.template.Library for storing components registered to the
     DocumentCreator toolbar.
     """
+    # pylint: disable=W0613
     def __init__(self, *args, **kwargs):
         self.components = {}
 
@@ -116,6 +129,7 @@ class ComponentLibrary(object):
         Register a class to appear on the DocumentCreator toolbar.
         """
         if class_ is None:
+            # pylint: disable=C0111
             def decorator(class_):
                 return self.register(class_, name, desc, group)
             return decorator

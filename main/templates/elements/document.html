@@ -31,17 +31,27 @@
 </head>
 <body>
 {% if not elements.all %}
-&ensp;<b>This page intentionally left blank. :)</b>
+<div class="jumbotron">
+<h1>Getting Started</h1>
+<ol class="h3">
+  <li>Select one of the tools in the
+    <span class="highlight_element" data-id="brush_toolbar">toolbar</span>
+  </li>
+  <li>Choose appropriate
+    <span class="highlight_element" data-id="toolopts_iframe">options</span>,
+    then
+    <button type="button" class="btn btn-lg btn-success">Add to Document</button>
+  </li>
+</ol>
+</div>
 {% else %}
 <div class="container">
-{% autoescape off %}
 {% recursetree elements.all %}
     {{ node|render }}
     {% if not node.is_leaf_node %}
         {{ children }}
     {% endif %}
 {% endrecursetree %}
-{% endautoescape %}
 </div>
 {% endif %}
 {% block preview_hidden %}{% endblock %}

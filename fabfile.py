@@ -13,7 +13,7 @@ INITIAL_DATA = (
     # for <some_app> in settings.INSTALLED_APPS
 )
 
-TESTABLE_MODULES = ()
+TESTABLE_MODULES = ('main', 'components')
 
 
 def initdata(syncdb=True):
@@ -40,8 +40,12 @@ def pylint():
     pylint_cmd = 'pylint {{{}}}'.format(','.join(TESTABLE_MODULES))
     # Ignore separator lines, missing module docstring warnings for
     # __init__.py, and 'locally-disabled' messages
-    grep_filter = 'grep -v "locally-disabled\|__init__\.py\|\*\*\* Module"'
-    local(' | '.join((pylint_cmd, grep_filter)))
+    grep_filter = '\\|'.join(('locally-disabled',
+                              '__init__\.py',
+                              '\*\*\* Module',
+                              'migrations'))
+    grep_cmd = 'grep -v "%s"' % grep_filter
+    local(' | '.join((pylint_cmd, grep_cmd)))
 
 
 def startserver():
