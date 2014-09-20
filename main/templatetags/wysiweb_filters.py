@@ -3,17 +3,18 @@ Template filters provided by WYSIWEB for working with element templates.
 """
 from django import template
 from django.utils.safestring import mark_safe
+from htmllaundry import sanitize
 
 # pylint: disable=C0103
 register = template.Library()
 
 
 @register.filter
-def elemid(obj):
+def cleanup(html):
     """
-    Return a unique identifier for this element.
+    Run html through htmllaundry.sanitize to wrap bare text and correct errors.
     """
-    return '%s-%s' % (obj.__class__.__name__, obj.pk)
+    return mark_safe(sanitize(html))
 
 
 @register.filter
@@ -28,6 +29,14 @@ def dictaccess(d, key):     # pylint: disable=C0103
         return d[key]
     except KeyError:
         return None
+
+
+@register.filter
+def elemid(obj):
+    """
+    Return a unique identifier for this element.
+    """
+    return '%s-%s' % (obj.__class__.__name__, obj.pk)
 
 
 @register.filter

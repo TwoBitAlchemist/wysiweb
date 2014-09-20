@@ -1,4 +1,4 @@
 {% load wysiweb_filters %}
 <div data-object="{{ element|elemid }}" class="jumbotron">
-    {{ element.text|safe }}
+    {{ element.text|cleanup }}
 </div>

@@ -39,6 +39,8 @@ $(document).ready(function(){
     if (!component.hasClass('updated')) {
         component.addClass('updated');
     }
+    $('.last_edited').removeClass('last_edited');
+    component.addClass('last_edited');
 }).on('mouseup', '*[contenteditable]', function(){
     if (timerID) window.clearTimeout(timerID);
     timerID = window.setTimeout(function(){

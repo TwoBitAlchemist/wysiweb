@@ -116,6 +116,14 @@ $(document).ready(function(){
         });
     }
 
+    $('#header1').click(function(){
+        if (rangy.getSelection().toString().length) {
+            wrapSelection('h1');
+        } else {
+            // I don't know yet
+        }
+    });
+
     $('button[title="Bold"]').click(function(){
         wrapSelection('strong');
     });

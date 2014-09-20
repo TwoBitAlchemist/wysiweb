@@ -4,6 +4,7 @@ High-level containers and document types.
 import re
 
 from django import template
+from django.contrib.auth.models import User
 from django.db import models
 # http://stackoverflow.com/a/929982/2588818
 from model_utils.managers import InheritanceManager
@@ -92,6 +93,8 @@ class Document(models.Model, SelfRendering):
     """
     name = models.CharField(max_length=255)
     elements = models.ManyToManyField(BaseElement, related_name='documents')
+    owner = models.ForeignKey(User, limit_choices_to={'is_staff': True},
+                              related_name='documents')
 
     # pylint: disable=E1101
     def has_elements(self):
