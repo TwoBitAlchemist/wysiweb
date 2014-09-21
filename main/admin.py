@@ -11,6 +11,12 @@ class DocumentCreator(admin.ModelAdmin):
     """
     exclude = ('elements', 'owner')
 
+    def change_view(self, request, object_id, from_url='', extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['DEBUG'] = settings.DEBUG
+        return (super(DocumentCreator, self)
+                    .change_view(request, object_id, from_url, extra_context))
+
     def has_change_permission(self, request, obj=None):
         has_class_permission = (super(DocumentCreator, self).
                                 has_change_permission(request, obj))
@@ -22,7 +28,7 @@ class DocumentCreator(admin.ModelAdmin):
         else:
             return True
 
-    def queryset(self, request):
+    def get_queryset(self, request):
         if settings.DEBUG and request.user.is_superuser:
             return Document.objects.all()
         return Document.objects.filter(owner=request.user)

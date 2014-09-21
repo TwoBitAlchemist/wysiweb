@@ -2,11 +2,11 @@ $(document).ready(function(){
     var iframe = $('#preview_iframe');
 
     function save_document(no_refresh) {
-        console.log('Checking for updates...');
+        if (DEBUG) console.log('Checking for updates...');
         iframe.contents().find('.updated[data-object]').each(function(){
             var updated = $(this);
             var elemid = updated.data('object');
-            console.log('Updating ' + elemid + '...');
+            if (DEBUG) console.log('Updating ' + elemid + '...');
             iframe.contents().find('#' + elemid + '-text')
                 .addClass('updated')
                 .val(updated.html().trim());
@@ -19,7 +19,7 @@ $(document).ready(function(){
                 var elemid = $(this).attr('id').replace('-text', '');
                 text_dict[elemid] = this.value;
             });
-            console.log('Saving elements...');
+            if (DEBUG) console.log('Saving elements...');
             $.ajax({
                 async: false,
                 url: update_url,
@@ -30,7 +30,7 @@ $(document).ready(function(){
                         $(this).removeClass('updated');
                     });
                     if (!no_refresh) {
-                        console.log('Refreshing...');
+                        if (DEBUG) console.log('Refreshing...');
                         iframe.addClass('outdated');
                     }
                 }
@@ -77,34 +77,40 @@ $(document).ready(function(){
 /*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
  *~*~*~*~*~*~*~*~            Top Button Bar         ~*~*~*~*~*~*~*~*~*~*~*~*~*
  *~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*/
-    function wrapSelection(wrapper) {
+    function wrap_selection(wrapper, conflicting) {
         var selected = iframe.contents().find('.selected');
         var updated = selected.closest('*[data-object]').addClass('updated');
         var already_wrapped = '';
+        if (DEBUG) {
+            console.log('Applying <'+wrapper+'> to selection...');
+            console.log('Conflicting elements: '+conflicting.join(', '));
+        }
         selected.each(function(){
-            if (this.parentNode.nodeName === wrapper.toUpperCase()) {
-                already_wrapped += $(this).text();
+            var s = $(this);
+            for (var i=0; i<conflicting.length; i++) {
+                var conflict = conflicting[i];
+                if (this.parentNode.nodeName === conflict.toUpperCase()) {
+                    if (DEBUG)
+                        console.log('Removing conflicting element '+conflict);
+                    already_wrapped += s.text();
+                    var conflicted = s.find(conflict);
+                    conflicted.replaceWith(conflicted.html());
+                }
             }
         });
         if (already_wrapped.trim() == selected.text().trim()){ 
             // all wrapped
+            if (DEBUG) console.log('Selection already wrapped... unwrapping');
             selected.each(function(){
                 var s = $(this);
-                s.parent().replaceWith(s.html());
+                s.unwrap();
             });
-        } else if (!already_wrapped){
+        } else {
             // none wrapped
+            if (DEBUG) console.log('Selection clean... wrapping');
             selected.each(function(){
                 var s = $(this);
                 s.replaceWith('<'+wrapper+'>'+s.html()+'</'+wrapper+'>');
-            });
-        } else {
-            // partially wrapped
-            selected.each(function(){
-                var s = $(this);
-                if (this.parentNode.nodeName !== wrapper.toUpperCase()) {
-                    s.replaceWith('<'+wrapper+'>'+s.html()+'</'+wrapper+'>');
-                }
             });
         }
         updated.find(wrapper).each(function(){
@@ -116,28 +122,29 @@ $(document).ready(function(){
         });
     }
 
-    $('#header1').click(function(){
-        if (rangy.getSelection().toString().length) {
-            wrapSelection('h1');
+    var all_headers = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+    $('#heading1').click(function(e){
+        if (rangy.getSelection(iframe[0]).toString().length) {
+            wrap_selection('h1', all_headers);
         } else {
             // I don't know yet
         }
     });
 
     $('button[title="Bold"]').click(function(){
-        wrapSelection('strong');
+        wrap_selection('strong', ['strong', 'b']);
     });
 
     $('button[title="Italics"]').click(function(){
-        wrapSelection('em');
+        wrap_selection('em', ['em', 'i']);
     });
 
     $('button[title="Highlight"]').click(function(){
-        wrapSelection('mark');
+        wrap_selection('mark', ['mark']);
     });
 
     $('button[title="Strikethrough"]').click(function(){
-        wrapSelection('strike');
+        wrap_selection('strike', ['strike', 's']);
     });
 
 });
