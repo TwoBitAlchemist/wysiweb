@@ -1,6 +1,7 @@
 {% extends 'elements/document.html' %}
 {% load staticfiles %}
 {% block preview_extra_headers %}
+<style>.selected{border: 2px dotted red;}</style>
 <script src="{% static 'admin/js/_djangoAjaxInit.js' %}"></script>
 <script src="{% static 'admin/js/esrever/src/esrever.js' %}"></script>
 <script src="{% static 'admin/js/rangy/lib/rangy-core.js' %}"></script>
@@ -41,7 +42,7 @@ $(document).ready(function(){
     }
     $('.last_edited').removeClass('last_edited');
     component.addClass('last_edited');
-}).on('mouseup', '*[contenteditable]', function(){
+}).on('mouseup keydown', '*[contenteditable]', function(){
     if (timerID) window.clearTimeout(timerID);
     timerID = window.setTimeout(function(){
         var sel = rangy.getSelection();
@@ -69,7 +70,7 @@ $(document).ready(function(){
         }
     }, 120);
 }).on('mousedown', '*[contenteditable]', function(){
-    wrapper.undoToSelection();
+    $('.selected').removeClass('selected');
 });
 </script>
 {% endblock %}

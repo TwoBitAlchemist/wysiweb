@@ -110,7 +110,7 @@ $(document).ready(function(){
             if (DEBUG) console.log('Selection clean... wrapping');
             selected.each(function(){
                 var s = $(this);
-                s.replaceWith('<'+wrapper+'>'+s.html()+'</'+wrapper+'>');
+                s.html('<'+wrapper+'>'+s.html()+'</'+wrapper+'>');
             });
         }
         updated.find(wrapper).each(function(){
