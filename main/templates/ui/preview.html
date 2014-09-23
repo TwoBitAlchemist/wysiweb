@@ -1,7 +1,7 @@
 {% extends 'elements/document.html' %}
 {% load staticfiles %}
 {% block preview_extra_headers %}
-<style>.selected{border: 2px dotted red;}</style>
+{% if DEBUG %}<style>.selected{border: 2px dotted red;}</style>{% endif %}
 <script src="{% static 'admin/js/_djangoAjaxInit.js' %}"></script>
 <script src="{% static 'admin/js/esrever/src/esrever.js' %}"></script>
 <script src="{% static 'admin/js/rangy/lib/rangy-core.js' %}"></script>
@@ -70,7 +70,10 @@ $(document).ready(function(){
         }
     }, 120);
 }).on('mousedown', '*[contenteditable]', function(){
-    $('.selected').removeClass('selected');
+    $('.selected').each(function(){
+        var s = $(this);
+        s.replaceWith(s.html());
+    });
 });
 </script>
 {% endblock %}

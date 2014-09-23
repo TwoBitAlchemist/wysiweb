@@ -3,6 +3,8 @@ $(document).ready(function(){
 
     function save_document(no_refresh) {
         if (DEBUG) console.log('Checking for updates...');
+        /* Loop through each element corresponding to a Component marked
+           updated and update its corresponding hidden form element.        */
         iframe.contents().find('.updated[data-object]').each(function(){
             var updated = $(this);
             var elemid = updated.data('object');
@@ -14,6 +16,8 @@ $(document).ready(function(){
         });
         var text_dict = {};
         var updated = iframe.contents().find('input.updated');
+        /* Use any updated form elements to make AJAX calls to update the
+           objects themselves in the database.                              */
         if (updated.length) {
             updated.each(function(){
                 var elemid = $(this).attr('id').replace('-text', '');
@@ -79,56 +83,39 @@ $(document).ready(function(){
  *~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*/
     function wrap_selection(wrapper, conflicting) {
         var selected = iframe.contents().find('.selected');
-        var updated = selected.closest('*[data-object]').addClass('updated');
-        var already_wrapped = '';
-        if (DEBUG) {
-            console.log('Applying <'+wrapper+'> to selection...');
-            console.log('Conflicting elements: '+conflicting.join(', '));
+        var removing = false;
+        var selected_text = selected.text().trim();
+        if (selected_text == selected.closest(wrapper).text().trim() ||
+                selected_text == selected.find(wrapper).text().trim()) {
+            if (DEBUG) console.log('Unwrapping selection...');
+            removing = true;
+        } else {
+            if (DEBUG)
+                console.log('Wrapping selected with ' + wrapper + '...');
         }
         selected.each(function(){
             var s = $(this);
             for (var i=0; i<conflicting.length; i++) {
                 var conflict = conflicting[i];
-                if (this.parentNode.nodeName === conflict.toUpperCase()) {
-                    if (DEBUG)
-                        console.log('Removing conflicting element '+conflict);
-                    already_wrapped += s.text();
-                    var conflicted = s.find(conflict);
-                    conflicted.replaceWith(conflicted.html());
+                // Unwrap the selection if it isn't destructive to do so
+                if (s.closest(conflict).text().trim() == s.text().trim()) {
+                    if (DEBUG) console.log('Removing parent conflict...');
+                    s.closest(conflict).replaceWith(s.html());
                 }
+                // Get rid of all conflicts within the selection
+                s.find(conflict).each(function(){
+                    if (DEBUG) console.log('Removing child conflict...');
+                    var s_inner = $(this);
+                    s_inner.replaceWith(s_inner.html());
+                });
             }
-        });
-        if (already_wrapped.trim() == selected.text().trim()){ 
-            // all wrapped
-            if (DEBUG) console.log('Selection already wrapped... unwrapping');
-            selected.each(function(){
-                var s = $(this);
-                s.unwrap();
-            });
-        } else {
-            // none wrapped
-            if (DEBUG) console.log('Selection clean... wrapping');
-            selected.each(function(){
-                var s = $(this);
-                s.html('<'+wrapper+'>'+s.html()+'</'+wrapper+'>');
-            });
-        }
-        updated.find(wrapper).each(function(){
-            var el = $(this);
-            var next = el.next();
-            if (next[0] && next[0].nodeName === wrapper.toUpperCase()) {
-                el.html([el.html(), next.remove().html()].join(' '));
-            }
+            if (!removing) s.wrap(['<', '></', '>'].join(wrapper));
         });
     }
 
     var all_headers = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
     $('#heading1').click(function(e){
-        if (rangy.getSelection(iframe[0]).toString().length) {
-            wrap_selection('h1', all_headers);
-        } else {
-            // I don't know yet
-        }
+        wrap_selection('h1', all_headers);
     });
 
     $('button[title="Bold"]').click(function(){

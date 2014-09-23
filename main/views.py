@@ -1,6 +1,7 @@
 """
 Views and helper functions for handling DocumentCreator's various requests.
 """
+from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.forms.models import modelform_factory
 from django.http import Http404, HttpResponse
@@ -64,9 +65,10 @@ def document_preview(request, pk):  # pylint: disable=C0103
         # pylint: disable=E1101
         document = Document.objects.get(pk=pk)
         editable = request.GET.get('editable', False)
+        context = document.supply_context()
+        context.update({'DEBUG': settings.DEBUG})
         if editable:
-            response = render(request, 'ui/preview.html',
-                              document.supply_context())
+            response = render(request, 'ui/preview.html', context)
         else:
             template_string = ''.join((
                 '{% autoescape off %}',
