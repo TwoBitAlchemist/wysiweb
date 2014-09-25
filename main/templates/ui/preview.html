@@ -26,9 +26,17 @@ $(document).ready(function(){
                 component.addClass(this.id, 'last_edited');
             })
         },
-        selector: '*[data-object]',
+        element_format: 'html',
+        fix_list_elements: true,
         inline: true,
-        menubar: false
+        menubar: false,
+        plugins: [
+            'advlist anchor autolink autoresize autosave colorpicker',
+            'contextmenu fullscreen hr insertdatetime link lists media',
+            'paste tabfocus table textpattern wordcount'
+        ],
+        schema: 'html5-strict',
+        selector: '*[data-object]'
     });
 
     $('span.highlight_element')
