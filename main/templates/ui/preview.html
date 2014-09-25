@@ -3,10 +3,10 @@
 {% block preview_extra_headers %}
 {% if DEBUG %}<style>.selected{border: 2px dotted red;}</style>{% endif %}
 <script src="{% static 'admin/js/_djangoAjaxInit.js' %}"></script>
-<script src="{% static 'admin/js/esrever/src/esrever.js' %}"></script>
-<script src="{% static 'admin/js/rangy/lib/rangy-core.js' %}"></script>
-<script src="{% static 'admin/js/rangy/lib/rangy-classapplier.js' %}"></script>
-<script src="{% static 'admin/js/rangy/lib/rangy-textrange.js' %}"></script>
+<script src="{% static 'admin/js/libs/esrever/src/esrever.js' %}"></script>
+<script src="{% static 'admin/js/libs/rangy/lib/rangy-core.js' %}"></script>
+<script src="{% static 'admin/js/libs/rangy/lib/rangy-classapplier.js' %}"></script>
+<script src="{% static 'admin/js/libs/rangy/lib/rangy-textrange.js' %}"></script>
 <script src="//tinymce.cachefly.net/4.1/tinymce.min.js"></script>
 <script>
 var rangy, timerID, wrapper;
