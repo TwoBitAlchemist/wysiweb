@@ -7,18 +7,29 @@
 <script src="{% static 'admin/js/rangy/lib/rangy-core.js' %}"></script>
 <script src="{% static 'admin/js/rangy/lib/rangy-classapplier.js' %}"></script>
 <script src="{% static 'admin/js/rangy/lib/rangy-textrange.js' %}"></script>
+<script src="//tinymce.cachefly.net/4.1/tinymce.min.js"></script>
 <script>
 var rangy, timerID, wrapper;
 $(document).ready(function(){
     rangy.init();
     var rangy_opts = {normalize: true, applyToEditableOnly: true};
     wrapper = rangy.createCssClassApplier('selected', rangy_opts);
-    var main = $('.container');
-    window.setInterval(function(){
-        main.find('*[data-object]').each(function(){
-            $(this).prop('contenteditable', true);
-        });
-    }, 1000);
+
+    tinymce.init({
+        setup: function(editor) {
+            editor.on('change', function(e) {
+                var component = tinymce.activeEditor.dom;
+                if (!component.hasClass(this.id, 'updated')) {
+                    component.addClass(this.id, 'updated');
+                }
+                tinyMCE.DOM.removeClass('.last_edited', 'last_edited');
+                component.addClass(this.id, 'last_edited');
+            })
+        },
+        selector: '*[data-object]',
+        inline: true,
+        menubar: false
+    });
 
     $('span.highlight_element')
         .css({
@@ -35,14 +46,7 @@ $(document).ready(function(){
                 window.clearInterval(interval);
             }, 1100);
         });
-}).on('input', '*[contenteditable]', function(){
-    var component = $(this);
-    if (!component.hasClass('updated')) {
-        component.addClass('updated');
-    }
-    $('.last_edited').removeClass('last_edited');
-    component.addClass('last_edited');
-}).on('mouseup keydown', '*[contenteditable]', function(){
+}).on('mouseup keydown', '*[data-object]', function(){
     if (timerID) window.clearTimeout(timerID);
     timerID = window.setTimeout(function(){
         var sel = rangy.getSelection();
@@ -69,7 +73,7 @@ $(document).ready(function(){
             }
         }
     }, 120);
-}).on('mousedown', '*[contenteditable]', function(){
+}).on('mousedown', '*[data-object]', function(){
     $('.selected').each(function(){
         var s = $(this);
         s.replaceWith(s.html());

@@ -39,6 +39,8 @@ $(document).ready(function(){
                     }
                 }
             });
+        } else {
+            if (DEBUG) console.log('No updates found.');
         }
     }
 
@@ -56,7 +58,7 @@ $(document).ready(function(){
     });
 
 /*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
- *~*~*~*~*~*~*~*~           Bottom Button Bar       ~*~*~*~*~*~*~*~*~*~*~*~*~*
+ *~*~*~*~*~*~*~*~*~*~         Button Bar         *~*~*~*~*~*~*~*~*~*~*~*~*~*~*
  *~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*/
     $('button[title="Save"]').click(function(){
         if (original_pk) {
@@ -77,61 +79,4 @@ $(document).ready(function(){
     $('button[title="Print"]').click(function(){
         window.open(preview_url + '?print=1');
     });
-
-/*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*
- *~*~*~*~*~*~*~*~            Top Button Bar         ~*~*~*~*~*~*~*~*~*~*~*~*~*
- *~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*/
-    function wrap_selection(wrapper, conflicting) {
-        var selected = iframe.contents().find('.selected');
-        var removing = false;
-        var selected_text = selected.text().trim();
-        if (selected_text == selected.closest(wrapper).text().trim() ||
-                selected_text == selected.find(wrapper).text().trim()) {
-            if (DEBUG) console.log('Unwrapping selection...');
-            removing = true;
-        } else {
-            if (DEBUG)
-                console.log('Wrapping selected with ' + wrapper + '...');
-        }
-        selected.each(function(){
-            var s = $(this);
-            for (var i=0; i<conflicting.length; i++) {
-                var conflict = conflicting[i];
-                // Unwrap the selection if it isn't destructive to do so
-                if (s.closest(conflict).text().trim() == s.text().trim()) {
-                    if (DEBUG) console.log('Removing parent conflict...');
-                    s.closest(conflict).replaceWith(s.html());
-                }
-                // Get rid of all conflicts within the selection
-                s.find(conflict).each(function(){
-                    if (DEBUG) console.log('Removing child conflict...');
-                    var s_inner = $(this);
-                    s_inner.replaceWith(s_inner.html());
-                });
-            }
-            if (!removing) s.wrap(['<', '></', '>'].join(wrapper));
-        });
-    }
-
-    var all_headers = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
-    $('#heading1').click(function(e){
-        wrap_selection('h1', all_headers);
-    });
-
-    $('button[title="Bold"]').click(function(){
-        wrap_selection('strong', ['strong', 'b']);
-    });
-
-    $('button[title="Italics"]').click(function(){
-        wrap_selection('em', ['em', 'i']);
-    });
-
-    $('button[title="Highlight"]').click(function(){
-        wrap_selection('mark', ['mark']);
-    });
-
-    $('button[title="Strikethrough"]').click(function(){
-        wrap_selection('strike', ['strike', 's']);
-    });
-
 });
