@@ -19,7 +19,7 @@
 {% endwith %}
 {% load mptt_tags %}
 {% load wysiweb_filters %}
-{% for element in elements.all %}
+{% for element in document.elements.all %}
   {% recursetree element.media.all %}
     {{ node|render }}
   {% if not node.is_leaf_node %}
@@ -30,7 +30,7 @@
 {% block preview_extra_headers %}{% endblock %}
 </head>
 <body>
-{% if not elements.all %}
+{% if not document.has_elements %}
 <div class="jumbotron">
 <h1>Getting Started</h1>
 <ol class="h3">
@@ -45,8 +45,8 @@
 </ol>
 </div>
 {% else %}
-<div class="container">
-{% recursetree elements.all %}
+<div class="container{% if document.is_fluid %}-fluid{% endif %}">
+{% recursetree document.rows.all %}
     {{ node|render }}
     {% if not node.is_leaf_node %}
         {{ children }}

@@ -9,7 +9,7 @@ class DocumentCreator(admin.ModelAdmin):
     """
     Overrides for Django Admin when creating a new Document.
     """
-    exclude = ('elements', 'owner')
+    exclude = ('elements', 'owner', 'rows')
 
     def change_view(self, request, object_id, from_url='', extra_context=None):
         extra_context = extra_context or {}

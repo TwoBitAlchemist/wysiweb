@@ -2,8 +2,15 @@
 {% load staticfiles %}
 {% block preview_extra_headers %}
 {% if DEBUG %}<style>.selected{border: 2px dotted red;}</style>{% endif %}
+{% with CDN='https://code.jquery.com/ui/1.11.1' %}
+<link rel="stylesheet" type="text/css" href="{{CDN}}/themes/smoothness/jquery-ui.css">
+<script type="text/javascript" src="{{CDN}}/jquery-ui.min.js"></script>
+{% endwith %}
 <script src="{% static 'admin/js/_djangoAjaxInit.js' %}"></script>
 <script src="{% static 'admin/js/libs/esrever/src/esrever.js' %}"></script>
+<script src="{% static 'admin/js/libs/gridster/jquery.gridster.min.js' %}"></script>
+<link rel="stylesheet"
+    href="{% static 'admin/js/libs/gridster/jquery.gridster.min.css' %}">
 <script src="{% static 'admin/js/libs/rangy/lib/rangy-core.js' %}"></script>
 <script src="{% static 'admin/js/libs/rangy/lib/rangy-classapplier.js' %}"></script>
 <script src="{% static 'admin/js/libs/rangy/lib/rangy-textrange.js' %}"></script>
@@ -11,12 +18,26 @@
 <script src="{% static 'admin/js/libs/tinymce/jquery.tinymce.min.js' %}"></script>
 <script src="{% static 'admin/js/tinymce_opts.js' %}"></script>
 <script>
-var rangy, timerID, wrapper;
+var gridster, rangy, timerID, wrapper;
 $(document).ready(function(){
     rangy.init();
     var rangy_opts = {normalize: true, applyToEditableOnly: true};
     wrapper = rangy.createCssClassApplier('selected', rangy_opts);
     tinymce.init(tinymce_opts);
+    gridster = $('*[data-object]').each(function(){
+        var self = $(this);
+        var innerW = self.innerWidth();
+        var innerH = self.innerHeight();
+        var margin_horiz = self.outerWidth(true) - self.outerWidth();
+        var margin_vert = self.outerHeight(true) - self.outerHeight();
+        self.gridster({
+            widget_base_dimensions: [innerW, innerH],
+            widget_margins: [margin_horiz, margin_vert],
+            draggable: {
+                handle: '#movehandle'
+            }
+        }).data('gridster');
+    });
     $('span.highlight_element')
         .css({
             'color': 'dodgerblue',
@@ -64,6 +85,22 @@ $(document).ready(function(){
         var s = $(this);
         s.replaceWith(s.html());
     });
+}).on('focus', '*[data-object]', function(){
+    $('#movehandle').remove();
+    var self = $(this);
+    self.css({position: 'relative', top: 0, left: 0});
+    var handle = $('<span id="movehandle" title="Drag"></span>');
+    handle.addClass('glyphicon glyphicon-move');
+    handle.css({
+        position: 'absolute',
+        top: '2px',
+        left: '2px',
+        cursor: 'move',
+        'font-size': '24px'
+    });
+    self.append(handle);
+}).on('blur', '*[data-object]', function(){
+    $('#movehandle').css('visibility', 'hidden');
 });
 </script>
 <style>
@@ -79,7 +116,7 @@ $(document).ready(function(){
 {% block preview_hidden %}
 {% load mptt_tags %}
 {% load wysiweb_filters %}
-{% recursetree elements.all %}
+{% recursetree document.elements.all %}
 <input type="hidden" value="{{ node.text }}"
     id="{{ node|elemid }}-text">
 {% if not node.is_leaf_node %}

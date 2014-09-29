@@ -10,6 +10,29 @@ register = template.Library()
 
 
 @register.filter
+def classes(element, default_list=None):
+    """
+    Output the correct Bootstrap classes based on element's settings.
+    """
+    class_list = [] if not default_list else default_list.strip().split()
+    col_sizes = ('xs', 'sm', 'md', 'lg')
+    for size in col_sizes:
+        cols = getattr(element, 'col_%s' % size)
+        if cols:
+            class_list.append('col-%s-%s' % (size, cols))
+        offset = getattr(element, 'col_%s_offset' % size)
+        if offset:
+            class_list.append('col-%s-offset-%s' % (size, offset))
+        pull = getattr(element, 'col_%s_pull' % size)
+        if pull:
+            class_list.append('col-%s-pull-%s' % (size, pull))
+        push = getattr(element, 'col_%s_push' % size)
+        if push:
+            class_list.append('col-%s-push-%s' % (size, push))
+    return ' '.join(class_list)
+
+
+@register.filter
 def cleanup(html):
     """
     Run html through htmllaundry.sanitize to wrap bare text and correct errors.
@@ -37,6 +60,14 @@ def elemid(obj):
     Return a unique identifier for this element.
     """
     return '%s-%s' % (obj.__class__.__name__, obj.pk)
+
+
+@register.filter
+def griddata(elem):
+    """
+    Add data classes for gridster.js plugin.
+    """
+    pass
 
 
 @register.filter

@@ -71,6 +71,23 @@ class BaseElement(BaseNode):
     """
     objects = InheritanceManager()
     text = models.TextField(blank=True, default='')
+    # Bootstrap Grid Layout Options
+    col_xs = models.PositiveSmallIntegerField(default=0)
+    col_sm = models.PositiveSmallIntegerField(default=0)
+    col_md = models.PositiveSmallIntegerField(default=0)
+    col_lg = models.PositiveSmallIntegerField(default=0)
+    col_xs_offset = models.PositiveSmallIntegerField(default=0)
+    col_sm_offset = models.PositiveSmallIntegerField(default=0)
+    col_md_offset = models.PositiveSmallIntegerField(default=0)
+    col_lg_offset = models.PositiveSmallIntegerField(default=0)
+    col_xs_pull = models.PositiveSmallIntegerField(default=0)
+    col_sm_pull = models.PositiveSmallIntegerField(default=0)
+    col_md_pull = models.PositiveSmallIntegerField(default=0)
+    col_lg_pull = models.PositiveSmallIntegerField(default=0)
+    col_xs_push = models.PositiveSmallIntegerField(default=0)
+    col_sm_push = models.PositiveSmallIntegerField(default=0)
+    col_md_push = models.PositiveSmallIntegerField(default=0)
+    col_lg_push = models.PositiveSmallIntegerField(default=0)
 
     def supply_context(self):
         return {'element': self}
@@ -78,6 +95,18 @@ class BaseElement(BaseNode):
     def save(self, *args, **kwargs):
         self.text = self.text.strip()
         return super(BaseElement, self).save(*args, **kwargs)
+
+
+# pylint: disable=R0904
+class GridRow(BaseNode):
+    """
+    A row in Bootstrap's Grid layout (<div class="row"></div>).
+    """
+    elements = models.ManyToManyField(BaseElement,
+                                      related_name='containing_rows')
+
+    def supply_context(self):
+        return {'elements': self.elements.select_subclasses()}
 
 
 class MediaObject(BaseNode):
@@ -92,9 +121,20 @@ class Document(models.Model, SelfRendering):
     Generic container for a blank template.
     """
     name = models.CharField(max_length=255)
-    elements = models.ManyToManyField(BaseElement, related_name='documents')
     owner = models.ForeignKey(User, limit_choices_to={'is_staff': True},
                               related_name='documents')
+    rows = models.ManyToManyField(GridRow, related_name='documents')
+    is_fluid = models.BooleanField(default=False,
+                                   verbose_name='Enable Fullscreen Layout')
+
+    # pylint: disable=E1101
+    @property
+    def elements(self):
+        """
+        A QuerySet of all child elements of the document, regardless of row.
+        """
+        base_elements = BaseElement.objects.select_subclasses()
+        return base_elements.filter(containing_rows__documents__in=(self,))
 
     # pylint: disable=E1101
     def has_elements(self):
@@ -104,14 +144,11 @@ class Document(models.Model, SelfRendering):
 
         Returns True if Document has attached elements, False otherwise.
         """
-        return bool(len(self.elements.all()))
+        return bool(self.rows.filter(elements__isnull=False))
 
     # pylint: disable=E1101
     def supply_context(self):
-        return {
-            'document': self,
-            'elements': self.elements.select_subclasses(),
-        }
+        return {'document': self}
 
     def __unicode__(self):
         return self.name

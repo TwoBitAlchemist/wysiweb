@@ -75,6 +75,7 @@
         <button type="button" class="btn btn-default" title="Save">
             <span class="glyphicon glyphicon-floppy-disk"></span>
         </button>
+    {% if original.has_elements %}
         <button type="button" class="btn btn-default" title="Desktop Preview">
             <span class="glyphicon glyphicon-new-window"></span>
         </button>
@@ -84,6 +85,7 @@
         <button type="button" class="btn btn-default" title="Print">
             <span class="glyphicon glyphicon-print"></span>
         </button>
+    {% endif %}
     </div>
 </div><!-- .btn-toolbar -->
 <div class="clearfix"></div>

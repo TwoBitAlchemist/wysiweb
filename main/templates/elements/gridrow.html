@@ -1,0 +1,10 @@
+{% load mptt_tags %}
+{% load wysiweb_filters %}
+<div class="row">
+{% recursetree elements.all %}
+    {{ node|render }}
+    {% if not node.is_leaf_node %}
+        {{ children }}
+    {% endif %}
+{% endrecursetree %}
+</div>
