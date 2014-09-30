@@ -2,6 +2,9 @@
 {% load i18n admin_urls admin_static admin_modify %}
 
 {% block extrahead %}{{ block.super }}
+<script src="{% static 'admin/js/libs/gridster/jquery.gridster.min.js' %}"></script>
+<link rel="stylesheet"
+    href="{% static 'admin/js/libs/gridster/jquery.gridster.min.css' %}">
 <style>.flash{box-shadow: 0 0 18px lime;}</style>
 <script src="{% url 'admin:jsi18n' %}"></script>
 <script>
@@ -68,7 +71,7 @@
   {% include "admin/includes/fieldset.html" %}
 {% endfor %}
 <div class="row" id="preview">
-<div class="col-sm-9">
+<div class="col-sm-9 col-lg-10">
 <h2 class="pull-left">Document Preview</h2>
 <div class="btn-toolbar" role="toolbar">
     <div class="btn-group">
@@ -79,16 +82,22 @@
         <button type="button" class="btn btn-default" title="Desktop Preview">
             <span class="glyphicon glyphicon-new-window"></span>
         </button>
-        <button type="button" class="btn btn-default" title="Mobile Preview">
-            <span class="glyphicon glyphicon-phone"></span>
-        </button>
         <button type="button" class="btn btn-default" title="Print">
             <span class="glyphicon glyphicon-print"></span>
         </button>
     {% endif %}
     </div>
+    <div class="btn-group" id="page-size-btn-group">
+        <button type="button" class="btn btn-default"
+            title="Extra Small (Mobile)">XS</button>
+        <button type="button" class="btn btn-default"
+            title="Small (Tablet)">SM</button>
+        <button type="button" class="btn btn-default"
+            title="Medium (Desktop)">MD</button>
+        <button type="button" class="btn btn-default"
+            title="Large (Widescreen)">LG</button>
+    </div>
 </div><!-- .btn-toolbar -->
-<div class="clearfix"></div>
 <fieldset class="module" id="document_preview">
 {% if original.pk %}
 <iframe id="preview_iframe" src="{% url 'preview' original.pk %}?editable=1">
@@ -99,7 +108,7 @@ Preview not available.
 {% endif %}
 </fieldset>
 </div><!-- .col-sm-9 -->
-<div class="col-sm-3">
+<div class="col-sm-3 col-lg-2">
 <h2>Tool Options</h2>
 <fieldset class="module" id="tool_options">
 <iframe src="{% url 'toolopts' %}" id="toolopts_iframe">

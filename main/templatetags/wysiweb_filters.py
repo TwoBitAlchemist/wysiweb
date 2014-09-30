@@ -3,7 +3,6 @@ Template filters provided by WYSIWEB for working with element templates.
 """
 from django import template
 from django.utils.safestring import mark_safe
-from htmllaundry import sanitize
 
 # pylint: disable=C0103
 register = template.Library()
@@ -30,14 +29,6 @@ def classes(element, default_list=None):
         if push:
             class_list.append('col-%s-push-%s' % (size, push))
     return ' '.join(class_list)
-
-
-@register.filter
-def cleanup(html):
-    """
-    Run html through htmllaundry.sanitize to wrap bare text and correct errors.
-    """
-    return mark_safe(sanitize(html))
 
 
 @register.filter

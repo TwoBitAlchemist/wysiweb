@@ -1,5 +1,5 @@
 {% load wysiweb_filters %}
 <div data-object="{{ element|elemid }}" {{ element|griddata }}
         class="{{ element|classes:'jumbotron' }}">
-    {{ element.text|cleanup }}
+    {{ element.text|safe }}
 </div>

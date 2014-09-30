@@ -10,6 +10,7 @@
     height: 100%;
 }
 #document_preview {
+    min-width: 450px;
     min-height: 450px;
 }
 #preview_iframe {

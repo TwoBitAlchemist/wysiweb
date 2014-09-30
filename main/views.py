@@ -18,7 +18,11 @@ def get_modelform(model):
     """
     Helper method to call modelform_factory with consistent options.
     """
-    return modelform_factory(model, exclude=('parent', 'index', 'text'))
+    exclude_fields = ['parent', 'index', 'text']
+    for col_size in ('xs', 'sm', 'md', 'lg'):
+        for suffix in ('', '_offset', '_pull', '_push'):
+            exclude_fields.append('col_%s%s' % (col_size, suffix))
+    return modelform_factory(model, exclude=exclude_fields)
 
 
 # pylint: disable=E1101
