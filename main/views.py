@@ -3,13 +3,14 @@ Views and helper functions for handling DocumentCreator's various requests.
 """
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
+from django.forms import HiddenInput
 from django.forms.models import modelform_factory
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, render
 from django import template
 from django.views.decorators.cache import never_cache
 
-from main.models import Document
+from main.models import Document, GridRow
 import components.models
 from components.models import toolbar
 
@@ -19,10 +20,11 @@ def get_modelform(model):
     Helper method to call modelform_factory with consistent options.
     """
     exclude_fields = ['parent', 'index', 'text']
+    widgets = {'row': HiddenInput()}
     for col_size in ('xs', 'sm', 'md', 'lg'):
         for suffix in ('', '_offset', '_pull', '_push'):
             exclude_fields.append('col_%s%s' % (col_size, suffix))
-    return modelform_factory(model, exclude=exclude_fields)
+    return modelform_factory(model, exclude=exclude_fields, widgets=widgets)
 
 
 # pylint: disable=E1101
@@ -39,9 +41,13 @@ def add_to_document(request):
     except (AttributeError, Document.DoesNotExist, KeyError):
         raise Http404
 
-    modelform = get_modelform(model)(request.POST)
-    instance = modelform.save()
-    document.elements.add(instance)
+    modeldata = request.POST.copy()
+    try:
+        row = document.rows.all()[0]
+    except IndexError:
+        row = GridRow.objects.create(document=document)
+    modeldata.update({'row': row})
+    get_modelform(model)(modeldata).save()
     return redirect('toolopts')
 
 
@@ -72,6 +78,7 @@ def document_preview(request, pk):  # pylint: disable=C0103
         context = document.supply_context()
         context.update({'DEBUG': settings.DEBUG})
         if editable:
+            context.update({'preview': True})
             response = render(request, 'ui/preview.html', context)
         else:
             template_string = ''.join((

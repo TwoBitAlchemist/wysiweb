@@ -2,9 +2,6 @@
 {% load i18n admin_urls admin_static admin_modify %}
 
 {% block extrahead %}{{ block.super }}
-<script src="{% static 'admin/js/libs/gridster/jquery.gridster.min.js' %}"></script>
-<link rel="stylesheet"
-    href="{% static 'admin/js/libs/gridster/jquery.gridster.min.css' %}">
 <style>.flash{box-shadow: 0 0 18px lime;}</style>
 <script src="{% url 'admin:jsi18n' %}"></script>
 <script>
@@ -78,7 +75,7 @@
         <button type="button" class="btn btn-default" title="Save">
             <span class="glyphicon glyphicon-floppy-disk"></span>
         </button>
-    {% if original.has_elements %}
+    {% if original.elements %}
         <button type="button" class="btn btn-default" title="Desktop Preview">
             <span class="glyphicon glyphicon-new-window"></span>
         </button>

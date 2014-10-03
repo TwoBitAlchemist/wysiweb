@@ -2,7 +2,7 @@
 {% load wysiweb_filters %}
 <div class="row">
 {% recursetree elements.all %}
-    {{ node|render }}
+    {{ node|render:preview }}
     {% if not node.is_leaf_node %}
         {{ children }}
     {% endif %}

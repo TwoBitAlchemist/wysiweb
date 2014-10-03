@@ -35,11 +35,13 @@ class SelfRendering(object):
         """
         raise NotImplementedError
 
-    def render(self, indent=0):
+    def render(self, indent=0, preview=False):
         """
         Render this model's template (as a string) using its context.
         """
         context = self.supply_context()
+        if preview:
+            context.update({'preview': True})
         rendered = self.get_template().render(template.Context(context))
         rendered = (line.rstrip() for line in rendered.strip().splitlines())
         lspacing = ' ' * indent * 4
@@ -71,6 +73,8 @@ class BaseElement(BaseNode):
     """
     objects = InheritanceManager()
     text = models.TextField(blank=True, default='')
+    row = models.ForeignKey('GridRow', related_name='elements')
+
     # Bootstrap Grid Layout Options
     col_xs = models.PositiveSmallIntegerField(default=0)
     col_sm = models.PositiveSmallIntegerField(default=0)
@@ -88,6 +92,27 @@ class BaseElement(BaseNode):
     col_sm_push = models.PositiveSmallIntegerField(default=0)
     col_md_push = models.PositiveSmallIntegerField(default=0)
     col_lg_push = models.PositiveSmallIntegerField(default=0)
+    
+    @property
+    def classes(self):
+        """
+        Output the correct Bootstrap classes based on element's settings.
+        """
+        class_list = []
+        for size in ('xs', 'sm', 'md', 'lg'):
+            cols = getattr(self, 'col_%s' % size)
+            if cols:
+                class_list.append('col-%s-%s' % (size, cols))
+            offset = getattr(self, 'col_%s_offset' % size)
+            if offset:
+                class_list.append('col-%s-offset-%s' % (size, offset))
+            pull = getattr(self, 'col_%s_pull' % size)
+            if pull:
+                class_list.append('col-%s-pull-%s' % (size, pull))
+            push = getattr(self, 'col_%s_push' % size)
+            if push:
+                class_list.append('col-%s-push-%s' % (size, push))
+        return class_list
 
     def supply_context(self):
         return {'element': self}
@@ -95,18 +120,6 @@ class BaseElement(BaseNode):
     def save(self, *args, **kwargs):
         self.text = self.text.strip()
         return super(BaseElement, self).save(*args, **kwargs)
-
-
-# pylint: disable=R0904
-class GridRow(BaseNode):
-    """
-    A row in Bootstrap's Grid layout (<div class="row"></div>).
-    """
-    elements = models.ManyToManyField(BaseElement,
-                                      related_name='containing_rows')
-
-    def supply_context(self):
-        return {'elements': self.elements.select_subclasses()}
 
 
 class MediaObject(BaseNode):
@@ -123,28 +136,13 @@ class Document(models.Model, SelfRendering):
     name = models.CharField(max_length=255)
     owner = models.ForeignKey(User, limit_choices_to={'is_staff': True},
                               related_name='documents')
-    rows = models.ManyToManyField(GridRow, related_name='documents')
     is_fluid = models.BooleanField(default=False,
                                    verbose_name='Enable Fullscreen Layout')
 
     # pylint: disable=E1101
     @property
     def elements(self):
-        """
-        A QuerySet of all child elements of the document, regardless of row.
-        """
-        base_elements = BaseElement.objects.select_subclasses()
-        return base_elements.filter(containing_rows__documents__in=(self,))
-
-    # pylint: disable=E1101
-    def has_elements(self):
-        """
-        Utility function for templates to check whether or not rendering the
-        Document will result in visible HTML.
-
-        Returns True if Document has attached elements, False otherwise.
-        """
-        return bool(self.rows.filter(elements__isnull=False))
+        return BaseElement.objects.filter(row__in=self.rows.all())
 
     # pylint: disable=E1101
     def supply_context(self):
@@ -152,6 +150,16 @@ class Document(models.Model, SelfRendering):
 
     def __unicode__(self):
         return self.name
+
+
+class GridRow(BaseNode):
+    """
+    A row of elements attached to a document, part of Bootstrap's grid system.
+    """
+    document = models.ForeignKey(Document, related_name='rows')
+
+    def supply_context(self):
+        return {'elements': self.elements.select_subclasses()}
 
 
 # pylint: disable=R0903
