@@ -141,7 +141,7 @@ var tinymce_opts = {
         'cut copy paste pastetext | undo redo',
     ],
     plugins: [
-        'advlist anchor autolink autosave colorpicker',
+        'advlist anchor autolink colorpicker',
         'contextmenu hr image insertdatetime link lists',
         'media paste tabfocus table textpattern'
     ],

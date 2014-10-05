@@ -142,7 +142,9 @@ class Document(models.Model, SelfRendering):
     # pylint: disable=E1101
     @property
     def elements(self):
-        return BaseElement.objects.filter(row__in=self.rows.all())
+        return (BaseElement.objects
+                    .select_subclasses()
+                    .filter(row__in=self.rows.all()))
 
     # pylint: disable=E1101
     def supply_context(self):

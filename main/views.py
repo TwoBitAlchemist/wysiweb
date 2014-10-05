@@ -1,8 +1,11 @@
 """
 Views and helper functions for handling DocumentCreator's various requests.
 """
+import json
+
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
+from django.core.exceptions import ObjectDoesNotExist
 from django.forms import HiddenInput
 from django.forms.models import modelform_factory
 from django.http import Http404, HttpResponse
@@ -125,15 +128,14 @@ def update_elements(request):
     """
     if not request.is_ajax() or not request.method == 'POST':
         raise Http404
-    try:
-        for key, value in request.POST.items():
-            try:
-                name, pk = key.split('-')   # pylint: disable=C0103
-                model = getattr(components.models, name).objects.get(pk=pk)
-                model.text = value
-                model.save()
-            except (AttributeError, ValueError, model.DoesNotExist):
-                continue
-        return HttpResponse('OK!')
-    except (Document.DoesNotExist, KeyError):
-        raise Http404
+    for key, value in request.POST.items():
+        try:
+            name, pk, attr = key.split('-')   # pylint: disable=C0103
+            model = getattr(components.models, name).objects.get(pk=pk)
+        except (AttributeError, ValueError, ObjectDoesNotExist):
+            continue
+        else:
+            if hasattr(model, attr):
+                setattr(model, attr, value)
+            model.save()
+    return HttpResponse('OK!')

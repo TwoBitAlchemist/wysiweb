@@ -10,26 +10,38 @@ $(document).ready(function(){
             var updated = $(this);
             var elemid = updated.data('object');
             if (DEBUG) console.log('Updating ' + elemid + '...');
+            updated.find(':empty').remove();
             iframe.contents().find('#' + elemid + '-text')
                 .addClass('updated')
                 .val(updated.html().trim());
             updated.removeClass('updated');
         });
-        var text_dict = {};
+        var data_dict = {};
         var updated = iframe.contents().find('input.updated');
         /* Use any updated form elements to make AJAX calls to update the
            objects themselves in the database.                              */
+        var col_sizes = ['col_xs', 'col_sm', 'col_md', 'col_lg'];
+        var suffixes = ['', '_offset', '_pull', '_push'];
         if (updated.length) {
             updated.each(function(){
-                var elemid = $(this).attr('id').replace('-text', '');
-                text_dict[elemid] = this.value;
+                var self = $(this);
+                var elemid = self.attr('id').replace('-text', '');
+                data_dict[elemid+'-text'] = this.value;
+                for (var i=0; i<4; i++){
+                    for (var j=0; j<4; j++) {
+                        var attr = col_sizes[j]+suffixes[i];
+                        var data = iframe[0].contentWindow.$.data(this, attr);
+                        if (data)
+                            data_dict[elemid+'-'+attr] = data;
+                    }
+                }
             });
             if (DEBUG) console.log('Saving elements...');
             $.ajax({
                 async: false,
                 url: update_url,
                 type: 'POST',
-                data: text_dict,
+                data: data_dict,
                 success: function(){
                     iframe.contents().find('input.updated').each(function(){
                         $(this).removeClass('updated');
