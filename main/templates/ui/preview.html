@@ -2,6 +2,7 @@
 {% load staticfiles %}
 {% block preview_extra_headers %}
 {% if DEBUG %}<style>.selected{border: 2px dotted red;}</style>{% endif %}
+<script>var DEBUG = {% if DEBUG %}true{% else %}false{% endif %};</script>
 {% with CDN='https://code.jquery.com/ui/1.11.1' %}
 <link rel="stylesheet" type="text/css" href="{{CDN}}/themes/smoothness/jquery-ui.css">
 <script type="text/javascript" src="{{CDN}}/jquery-ui.min.js"></script>
@@ -23,6 +24,8 @@
     }
     #format_toolbar { opacity: 0.4; }
     #format_toolbar:hover { opacity: 1; }
+    .plaintext { border: thin dashed black; }
+    .action-bar-active { padding-top: 32px; }
 </style>
 {% endblock %}
 {% block preview_hidden %}

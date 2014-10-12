@@ -1,0 +1,6 @@
+{% load wysiweb_filters %}
+{% with e=element %}
+<p{% if preview %} data-object="{{ e|elemid }}" class="plaintext{% if e.classes %} {{ e.classes }}{% endif %}"{% elif e.classes %} class="{{ e.classes }}"{% endif %}>
+    {{ e.text|safe }}
+</p>
+{% endwith %}

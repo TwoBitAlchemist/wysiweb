@@ -2,6 +2,8 @@
 Models defining elements in the DocumentCreator toolbar, and their associated
 MediaObjects and types.
 """
+from django.db import models
+
 from main.models import BaseElement, ComponentLibrary
 
 
@@ -11,16 +13,14 @@ toolbar = ComponentLibrary()
 
 # pylint: disable=R0904
 @toolbar.register(group='Presentation')
-class ImageSlideshow(BaseElement):
+class Carousel(BaseElement):
     """
-    A jQuery-based image slideshow based on the JSSOR library.
+    A slideshow component for cycling through elemnts, like a carousel.
+    Nested carousels are not supported.
 
-    Easily add images to a responsive, touch-friendly slideshow with support
-    for hundreds of transitions and effects.
-
-    http://jssor.com/
+    Provided by Twitter Bootstrap.
     """
-    pass
+    starting_slides = models.PositiveSmallIntegerField(default=3)
 
 
 # pylint: disable=R0904
@@ -31,5 +31,15 @@ class Jumbotron(BaseElement):
     extra attention to featured content or information.
 
     Provided by Twitter Bootstrap.
+    """
+    pass
+
+
+#pylint: disable=R0904
+@toolbar.register(group='Text')
+class PlainText(BaseElement):
+    """
+    A basic text object for adding arbitrary content and styling it
+    however you want.
     """
     pass

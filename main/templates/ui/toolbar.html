@@ -78,7 +78,7 @@
   {% for group in components %}
   <div class="row" id="tab{{ forloop.counter }}">
   {% for component in components|dictaccess:group %}
-  <p class="component col-xs-3 col-sm-2"
+  <p class="component col-xs-2 col-sm-1"
       title="{{ component.description }}">{{ component.name }}</p>
   {% endfor %}
   </div><!-- .row -->

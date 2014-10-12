@@ -45,10 +45,8 @@ def add_to_document(request):
         raise Http404
 
     modeldata = request.POST.copy()
-    try:
-        row = document.rows.all()[0]
-    except IndexError:
-        row = GridRow.objects.create(document=document)
+    index = document.rows.count()
+    row = GridRow.objects.create(document=document, index=index)
     modeldata.update({'row': row})
     get_modelform(model)(modeldata).save()
     return redirect('toolopts')
