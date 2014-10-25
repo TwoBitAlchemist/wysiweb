@@ -1,0 +1,19 @@
+.action-bar-active {
+    position: relative;
+}
+#action_button_bar {
+    border-radius: 3px;
+    font-size: 24px;
+    position: absolute;
+    top: 0; left: 0;
+}
+#deleteobj { position: relative; top: -3px; margin-right: 3px; }
+#format_toolbar {
+    position: fixed;
+    top: 0; right: 0;
+    width: 270px;
+}
+#format_toolbar { opacity: 0.4; }
+#format_toolbar:hover { opacity: 1; }
+#movehandle { cursor: move; position: relative; top: 3px; }
+.plaintext { border: thin dashed black; }

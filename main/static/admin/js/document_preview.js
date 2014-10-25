@@ -1,4 +1,4 @@
-var actionBarTimerID, rangy, selectionTimerID, wrapper;
+var rangy, selectionTimerID, wrapper;
 
 
 function get_bootstrap_col_size(w){
@@ -166,39 +166,20 @@ $(document).ready(function(){
         var s = $(this);
         s.replaceWith(s.html());
     });
-}).on('blur', '*[data-object]', function(){
-    window.clearTimeout(actionBarTimerID);
-    actionBarTimerID = window.setTimeout(function(){
-        $('#action_button_bar').remove();
-        $('.action-bar-active').removeClass('action-bar-active');
-    }, 100);
 }).on('click', '*[data-object]', function(){
     if (!$(this).is(':focus')) $(this).focus();
-}).on(' focus', '*[data-object]', function(){
+}).on('focus', '*[data-object]', function(){
     $('#action_button_bar').remove();
     $('.action-bar-active').removeClass('action-bar-active');
+    $('.row.debug-lime').removeClass('debug-lime');
     var self = $(this);
     self.addClass('action-bar-active');
     var buttonbar = $('<div id="action_button_bar"></div>');
-    var css = {
-        'background-color': 'lightgrey',
-        'border-radius': '3px',
-        'font-size': '24px',
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '64px',
-        height: '30px',
-        'z-index': 1000
-    };
-    buttonbar.css(css);
     var handle = $('<span id="movehandle" title="Drag"></span>');
     handle.addClass('glyphicon glyphicon-move');
-    handle.css({ position: 'relative', top: '3px', cursor: 'move' });
     var close = $('<button id="deleteobj" title="Delete"></button>');
     close.addClass('btn btn-sm btn-danger');
     close.append($('<span class="glyphicon glyphicon-remove"></span>'));
-    close.css({ position: 'relative', top: '-3px', 'margin-right': '3px' });
     close.mousedown(function(){
         var target = $(this).closest('*[data-object]');
         var destroy;
@@ -218,21 +199,39 @@ $(document).ready(function(){
     var container = self.closest('.row');
     var col_size = get_bootstrap_col_size();
     var col_width = Math.round(container.width() / 12);
+    if (DEBUG) container.addClass('debug-lime');
     self.draggable({
-        axis: 'x',
         grid: [col_width, container.height()],
         handle: '#movehandle',
+        revert: 'invalid',
         stop: function(e, ui){
             set_bootstrap_col_info(this);
-            $(this).css({top: 0, left: 0});
         }
     }).resizable({
-        containment: '.row',
         grid: col_width,
+        maxWidth: col_width * 12,
         minWidth: col_width,
-        maxWidth: container.width(),
         stop: function(e, ui) {
             set_bootstrap_col_info(this);
         }
+    });
+    $('.row').droppable({
+        accept: '.action-bar-active',
+        drop: function(e, ui){
+            if (DEBUG) {
+                $('.row.debug-red').removeClass('debug-red');
+                $('.row.debug-lime').removeClass('debug-lime');
+                $(this).addClass('debug-red');
+            }
+            if (container[0] !== this) {
+                $('#action_button_bar').remove();
+                var dropped = ui.draggable
+                                .css({position: '', top: '', left: ''});
+                $(this).append(dropped);
+                if (!container.find('*[data-object]').length)
+                    container.remove();
+            }
+        },
+        hoverClass: 'debug-navy'
     });
 });

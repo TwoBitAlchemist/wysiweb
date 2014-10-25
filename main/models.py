@@ -6,6 +6,7 @@ import re
 from django import template
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils import html
 # http://stackoverflow.com/a/929982/2588818
 from model_utils.managers import InheritanceManager
 from mptt.models import MPTTModel, TreeForeignKey
@@ -119,7 +120,18 @@ class BaseElement(BaseNode):
 
     def save(self, *args, **kwargs):
         self.text = self.text.strip()
+        for col_size in ('xs', 'sm', 'md', 'lg'):
+            for suffix in ('', 'offset', 'pull', 'push'):
+                field_name_parts = ['col', col_size]
+                if suffix:
+                    field_name_parts.append(suffix)
+                field_name = '_'.join(field_name_parts)
+                if getattr(self, field_name) >= 12:
+                    setattr(self, field_name, 0)
         return super(BaseElement, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return html.strip_tags(self.text)
 
 
 class MediaObject(BaseNode):

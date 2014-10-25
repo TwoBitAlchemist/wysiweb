@@ -16,16 +16,13 @@
 <script src="{% static 'admin/js/libs/tinymce/jquery.tinymce.min.js' %}"></script>
 <script src="{% static 'admin/js/tinymce_opts.js' %}"></script>
 <script src="{% static 'admin/js/document_preview.js' %}"></script>
+<link rel="stylesheet" href="{% static 'admin/css/document_preview.css' %}">
 <style>
-    #format_toolbar {
-        position: fixed;
-        top: 0; right: 0;
-        width: 270px;
-    }
-    #format_toolbar { opacity: 0.4; }
-    #format_toolbar:hover { opacity: 1; }
-    .plaintext { border: thin dashed black; }
-    .action-bar-active { padding-top: 32px; }
+    {% if DEBUG %}
+    .debug-lime { border: thick solid lime; }
+    .debug-navy { border: thick solid navy; }
+    .debug-red { border: thick solid red; }
+    {% endif %}
 </style>
 {% endblock %}
 {% block preview_hidden %}

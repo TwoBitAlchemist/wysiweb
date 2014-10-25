@@ -2,8 +2,15 @@ var iframe_reload_timer, polling_loop;
 $(document).ready(function(){
     var iframe = $('#preview_iframe');
 
+    var SAVE_BLACKLIST = [
+        '#action_button_bar'
+    ];
+
     function save_document(no_refresh) {
         if (DEBUG) console.log('Checking for updates...');
+        /* Remove blacklisted elements which should not be saved. */
+        for (var i=0; i<SAVE_BLACKLIST.length; i++)
+            iframe.contents().find(SAVE_BLACKLIST[i]).remove();
         /* Loop through each element corresponding to a Component marked
            updated and update its corresponding hidden form element.        */
         iframe.contents().find('.updated[data-object]').each(function(){
