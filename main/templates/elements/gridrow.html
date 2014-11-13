@@ -1,6 +1,6 @@
 {% load mptt_tags %}
 {% load wysiweb_filters %}
-<div class="row">
+<div {% if preview %}data-row="{{ row|elemid }}" {% endif %}class="row">
 {% recursetree elements.all %}
     {{ node|render:preview }}
     {% if not node.is_leaf_node %}

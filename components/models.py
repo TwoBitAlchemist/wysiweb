@@ -20,7 +20,7 @@ class Carousel(BaseElement):
 
     Provided by Twitter Bootstrap.
     """
-    starting_slides = models.PositiveSmallIntegerField(default=3)
+    slides = models.PositiveSmallIntegerField(default=3)
 
 
 # pylint: disable=R0904

@@ -9,7 +9,7 @@ class DocumentCreator(admin.ModelAdmin):
     """
     Overrides for Django Admin when creating a new Document.
     """
-    exclude = ('elements', 'owner')
+    exclude = ('elements', 'owners', 'contributors')
 
     def change_view(self, request, object_id, from_url='', extra_context=None):
         extra_context = extra_context or {}
@@ -23,7 +23,7 @@ class DocumentCreator(admin.ModelAdmin):
         if not has_class_permission:
             return False
         elif (obj is not None and not request.user.is_superuser and
-                request.user.id != obj.owner.id):
+                request.user.id not in (c.id for c in obj.collaborators())):
             return False
         else:
             return True

@@ -41,8 +41,7 @@ class SelfRendering(object):
         Render this model's template (as a string) using its context.
         """
         context = self.supply_context()
-        if preview:
-            context.update({'preview': True})
+        context.update({'preview': bool(preview)})
         rendered = self.get_template().render(template.Context(context))
         rendered = (line.rstrip() for line in rendered.strip().splitlines())
         lspacing = ' ' * indent * 4
@@ -126,7 +125,8 @@ class BaseElement(BaseNode):
                 if suffix:
                     field_name_parts.append(suffix)
                 field_name = '_'.join(field_name_parts)
-                if getattr(self, field_name) >= 12:
+                field_val = getattr(self, field_name)
+                if not (0 <= field_val < 12):
                     setattr(self, field_name, 0)
         return super(BaseElement, self).save(*args, **kwargs)
 
@@ -141,15 +141,50 @@ class MediaObject(BaseNode):
     parent_element = models.ForeignKey(BaseElement, related_name='media')
 
 
+class UserUpload(models.Model, SelfRendering):
+    """
+    Files (images, videos, documents, etc.) uploaded by a User and
+    attached to one or more Documents.
+    """
+    last_modified = models.DateTimeField(auto_now=True)
+    uploaded_by = models.ForeignKey(User, related_name='uploads',
+                                    limit_choices_to={'is_staff': True})
+    uploaded_file = models.FileField(upload_to='uploaded_files')
+    UPLOAD_TYPES = (
+        (0, 'Image/Graphic'),
+        (1, 'Video/Embed'),
+        (2, 'Document/Include'),
+    )
+    upload_type = models.PositiveSmallIntegerField(choices=UPLOAD_TYPES)
+
+    def get_template(self):
+        if self.upload_type == 0:
+            return template.loader.get_template('uploads/graphic.html')
+        elif self.upload_type == 1:
+            return template.loader.get_template('uploads/embed.html')
+        elif self.upload_type == 2:
+            return template.loader.get_template('uploads/include.html')
+        else:
+            raise ValueError('Invalid UserUpload Type: %s' % self.upload_type)
+
+
 class Document(models.Model, SelfRendering):
     """
     Generic container for a blank template.
     """
     name = models.CharField(max_length=255)
-    owner = models.ForeignKey(User, limit_choices_to={'is_staff': True},
-                              related_name='documents')
+    owners = models.ManyToManyField(User, related_name='documents_owned',
+                                    limit_choices_to={'is_staff': True})
+    contributors = models.ManyToManyField(User, related_name='documents',
+                                          limit_choices_to={'is_staff': True})
     is_fluid = models.BooleanField(default=False,
                                    verbose_name='Enable Fullscreen Layout')
+    attached_files = models.ManyToManyField(UserUpload,
+                                            related_name='documents')
+
+    # pylint: disable=E1101
+    def collaborators(self):
+        return self.owners.all() + self.contributors.all()
 
     # pylint: disable=E1101
     @property
@@ -173,7 +208,13 @@ class GridRow(BaseNode):
     document = models.ForeignKey(Document, related_name='rows')
 
     def supply_context(self):
-        return {'elements': self.elements.select_subclasses()}
+        return {
+            'elements': self.elements.select_subclasses(),
+            'row': self
+        }
+
+    def __unicode__(self):
+        return '%s object(s)' % self.elements.count()
 
 
 # pylint: disable=R0903

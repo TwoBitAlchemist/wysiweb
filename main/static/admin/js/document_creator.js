@@ -33,14 +33,22 @@ $(document).ready(function(){
             updated.each(function(){
                 var self = $(this);
                 var elemid = self.attr('id').replace('-text', '');
-                data_dict[elemid+'-text'] = this.value;
-                for (var i=0; i<4; i++){
-                    for (var j=0; j<4; j++) {
-                        var attr = col_sizes[j]+suffixes[i];
-                        var data = iframe[0].contentWindow.$.data(this, attr);
-                        if (data)
-                            data_dict[elemid+'-'+attr] = data;
+                var iframe_data = iframe[0].contentWindow.$.data;
+                if (iframe_data(this, 'remove')) {
+                    data_dict[elemid+'-remove'] = true;
+                } else {
+                    data_dict[elemid+'-text'] = this.value;
+                    for (var i=0; i<4; i++){
+                        for (var j=0; j<4; j++) {
+                            var attr = col_sizes[j]+suffixes[i];
+                            var data = iframe_data(this, attr);
+                            if (data)
+                                data_dict[elemid+'-'+attr] = data;
+                        }
                     }
+                    var data = iframe_data(this, 'row');
+                    if (data)
+                        data_dict[elemid+'-row'] = data;
                 }
             });
             if (DEBUG) console.log('Saving elements...');

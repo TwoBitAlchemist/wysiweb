@@ -7,6 +7,9 @@
     position: absolute;
     top: 0; left: 0;
 }
+.border-navy { border: thick solid navy; }
+.border-lime { border: thick solid lime; }
+.border-red { border: thick solid red; }
 #deleteobj { position: relative; top: -3px; margin-right: 3px; }
 #format_toolbar {
     position: fixed;

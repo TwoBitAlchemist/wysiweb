@@ -97,15 +97,19 @@ function set_bootstrap_col_info(elem){
     } else if (col_offset > 12) {
         col_offset = 12;
     }
-    if (col_offset) elem.addClass('col-'+col_size+'-offset-'+col_offset);
     if (DEBUG) console.log('Original offset: ' + orig_offset);
     if (DEBUG) console.log('New offset: ' + col_offset);
     var cols_wide = Math.round(elem.innerWidth() / col_width);
     if (DEBUG) console.log('Cols wide: ' + cols_wide);
-    if (cols_wide < 12) elem.addClass('col-'+col_size+'-'+cols_wide);
-    $('#'+elem.data('object')+'-text')
-        .data('col_'+col_size, cols_wide)
-        .data('col_'+col_size+'_offset', col_offset);
+    var controller = $('#'+elem.data('object')+'-text');
+    if (cols_wide < 12) {
+        elem.addClass('col-'+col_size+'-'+cols_wide);
+        controller.data('col_'+col_size, cols_wide)
+    }
+    if (col_offset) {
+        elem.addClass('col-'+col_size+'-offset-'+col_offset);
+        controller.data('col_'+col_size+'_offset', col_offset);
+    }
 }
 
 
@@ -171,7 +175,7 @@ $(document).ready(function(){
 }).on('focus', '*[data-object]', function(){
     $('#action_button_bar').remove();
     $('.action-bar-active').removeClass('action-bar-active');
-    $('.row.debug-lime').removeClass('debug-lime');
+    $('.row.border-lime').removeClass('border-lime');
     var self = $(this);
     self.addClass('action-bar-active');
     var buttonbar = $('<div id="action_button_bar"></div>');
@@ -190,6 +194,10 @@ $(document).ready(function(){
         }
         if (destroy){
             target.remove();
+            var target_ctrl = $('#'+target.data('object')+'-text');
+            if (!target_ctrl.hasClass('updated'))
+                target_ctrl.addClass('updated');
+            target_ctrl.data('remove', true);
             $('#format_toolbar').remove();
         }
     });
@@ -199,9 +207,9 @@ $(document).ready(function(){
     var container = self.closest('.row');
     var col_size = get_bootstrap_col_size();
     var col_width = Math.round(container.width() / 12);
-    if (DEBUG) container.addClass('debug-lime');
+    container.addClass('border-lime');
     self.draggable({
-        grid: [col_width, container.height()],
+        grid: [col_width, 20],
         handle: '#movehandle',
         revert: 'invalid',
         stop: function(e, ui){
@@ -218,20 +226,24 @@ $(document).ready(function(){
     $('.row').droppable({
         accept: '.action-bar-active',
         drop: function(e, ui){
-            if (DEBUG) {
-                $('.row.debug-red').removeClass('debug-red');
-                $('.row.debug-lime').removeClass('debug-lime');
-                $(this).addClass('debug-red');
-            }
+            $('.row.border-red').removeClass('border-red');
+            $('.row.border-lime').removeClass('border-lime');
+            $(this).addClass('border-red');
             if (container[0] !== this) {
                 $('#action_button_bar').remove();
                 var dropped = ui.draggable
                                 .css({position: '', top: '', left: ''});
-                $(this).append(dropped);
+                var self = $(this);
+                self.append(dropped);
+                var drop_ctrl = $('#'+dropped.data('object')+'-text');
+                if (!drop_ctrl.hasClass('updated'))
+                    drop_ctrl.addClass('updated')
+                drop_ctrl.data('row', self.data('row').split('-')[1]);
+                if (DEBUG) console.log('New row: '+drop_ctrl.data('row'));
                 if (!container.find('*[data-object]').length)
                     container.remove();
             }
         },
-        hoverClass: 'debug-navy'
+        hoverClass: 'border-navy'
     });
 });

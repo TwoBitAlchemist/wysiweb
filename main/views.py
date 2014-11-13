@@ -124,6 +124,7 @@ def update_elements(request):
     """
     AJAX handler to update elements on a document.
     """
+    rows_changed = []
     if not request.is_ajax() or not request.method == 'POST':
         raise Http404
     for key, value in request.POST.items():
@@ -133,7 +134,19 @@ def update_elements(request):
         except (AttributeError, ValueError, ObjectDoesNotExist):
             continue
         else:
-            if hasattr(model, attr):
-                setattr(model, attr, value)
-            model.save()
+            if attr == 'remove':
+                rows_changed.append(model.row)
+                model.delete()
+            elif hasattr(model, attr):
+                if attr == 'row':
+                    rows_changed += [getattr(model, attr).pk, value]
+                    setattr(model, attr, GridRow.objects.get(pk=value))
+                else:
+                    setattr(model, attr, value)
+                model.save()
+    if rows_changed:
+        (GridRow.objects
+            .filter(pk__in=rows_changed)
+            .filter(elements__isnull=True)
+            .delete())
     return HttpResponse('OK!')

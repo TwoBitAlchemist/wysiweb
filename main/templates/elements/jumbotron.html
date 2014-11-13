@@ -1,6 +1,6 @@
 {% load wysiweb_filters %}
 {% with e=element %}
-<div {% if preview %}data-object="{{ e|elemid }}" {% endif %} class="jumbotron{% if e.classes %} {{ e.classes|join:' ' }}{% endif %}">
+<div {% if preview %}data-object="{{ e|elemid }}" {% endif %}class="jumbotron{% if e.classes %} {{ e.classes|join:' ' }}{% endif %}">
     {{ e.text|safe }}
 </div>
 {% endwith %}

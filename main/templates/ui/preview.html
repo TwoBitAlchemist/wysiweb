@@ -17,13 +17,6 @@
 <script src="{% static 'admin/js/tinymce_opts.js' %}"></script>
 <script src="{% static 'admin/js/document_preview.js' %}"></script>
 <link rel="stylesheet" href="{% static 'admin/css/document_preview.css' %}">
-<style>
-    {% if DEBUG %}
-    .debug-lime { border: thick solid lime; }
-    .debug-navy { border: thick solid navy; }
-    .debug-red { border: thick solid red; }
-    {% endif %}
-</style>
 {% endblock %}
 {% block preview_hidden %}
 {% load mptt_tags %}

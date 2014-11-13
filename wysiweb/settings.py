@@ -96,6 +96,18 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
 )
 
+# Amazon S3 Settings (django-storages + boto)                                   
+# See http://django-storages.readthedocs.org/en/latest/backends/amazon-S3.html  DEFAULT_FILE_STORAGE = 'AMTHub.s3utils.MediaS3BotoStorage'                      
+                                                                                
+AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']                             
+AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']                     
+AWS_STORAGE_BUCKET_NAME = os.environ['AWS_STORAGE_BUCKET_NAME']                 
+AWS_S3_CUSTOM_DOMAIN = 'd35k2c6wr1wh6h.cloudfront.net'                          
+                                                                                
+#S3_URL = 'http://{}.s3.amazonaws.com'.format(AWS_STORAGE_BUCKET_NAME)          
+S3_URL = 'https://' + AWS_S3_CUSTOM_DOMAIN                                      
+MEDIA_URL = S3_URL + '/media/' 
+
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',
     'django.core.context_processors.debug',

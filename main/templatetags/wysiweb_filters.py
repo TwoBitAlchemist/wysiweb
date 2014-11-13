@@ -31,6 +31,21 @@ def elemid(obj):
 
 
 @register.filter
+def range_to(start, stop):
+    """
+    Return a numeric range using the specified bounds.
+
+    This allows for numeric for loops in templates, which Django's
+    templates do not support natively.
+    """
+    try:
+        range = xrange
+    except NameError:
+        pass
+    return range(start, stop)
+
+
+@register.filter
 def render(node, preview=False):
     """
     Call a SelfRendering node's render method with the specified indent level.
